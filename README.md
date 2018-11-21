@@ -17,4 +17,8 @@ TBD
 
 The individual feedback identifaction components will be listed here with a brief description
 
-(1) 
+(1) SNR Check - This component will exclude any peaks below a certain signal to noise threshold
+(2) Swell Check - This component will assign a probability to frequencies that are increasing over time, indicating a feedback loop
+(3) Harmonic Check - This component will check if frequencies with a non-zero probability have harmonics--feedback tones should be isolated, while instrument tones will have harmonics
+(4) Spectral Width Check - This component will look at the frequencies in close proximity to the budding feedback and identify if they are growing at a similar rate. This would indicate wide-band feedback, and must be dealt with a wider band-stop filter
+(5) Sustain Check - This component will keep tabs on possible feedback peaks, and then increase their probability if they're sustained for an extended period. It is possible that feedback can reach a maximum intensity based on the external system, so this will take that into account.
