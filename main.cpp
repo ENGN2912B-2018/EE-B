@@ -1,12 +1,22 @@
-// This file is intended to be the main loop from which the entire system can run
 #include <iostream>
+#include <fstream>
+#include <vector>
+#include "FileReader.h"
 
-int main() {
+using namespace std;
 
+int main()
+{
+    FileReader reader;
+    vector<int> data = reader.read("example2.wav");
 
-
-
-
-
-	return 0;
+    for (vector<int>::iterator i = data.begin(); i != data.end(); ++i)
+    {
+        //cout << *i << endl;
+    }
 }
+
+//http://soundfile.sapp.org/doc/WaveFormat/
+
+
+
