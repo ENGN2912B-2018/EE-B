@@ -37,56 +37,56 @@ vector<int> FileReader::read(string fileName)
 
     ifstream ifstr(fileName.c_str(), ifstream::binary);
     ifstr.read(ChunkID,4);
-    cout << ChunkID << endl;
+    cout << "ChunkID: " << ChunkID << endl;
 
     ifstr.read(ChunkSize,4);
     unsigned num = ((u8)ChunkSize[3] << 24) | ((u8)ChunkSize[2] << 16) | ((u8)ChunkSize[1] << 8) | (u8)ChunkSize[0];
-    cout << num << endl;
+    cout << "ChunkSize: " << num << endl;
 
     ifstr.read(Format,4);
-    cout << Format << endl;
+    cout << "Format: " << Format << endl;
 
     ifstr.read(SubChunk1ID,4);
-    cout << SubChunk1ID << endl;
+    cout << "SubChunkID: " << SubChunk1ID << endl;
 
     ifstr.read(SubChunk1Size,4);
     num = ((u8)SubChunk1Size[3] << 24) | ((u8)SubChunk1Size[2] << 16) | ((u8)SubChunk1Size[1] << 8) | (u8)SubChunk1Size[0];
-    cout << num << endl;
+    cout << "SubChunkSize: " << num << endl;
 
     ifstr.read(AudioFormat,2);
     num = 0;
     num = (((u8)AudioFormat[1] << 8) | (u8)AudioFormat[0]);
-    cout << num << endl;
+    cout << "AudioFormat: " << num << endl;
 
     ifstr.read(NumChannels,2);
     num = 0;
     num = (((u8)NumChannels[1] << 8) | (u8)NumChannels[0]);
-    cout << num << endl;
+    cout << "NumChannels: " << num << endl;
 
     ifstr.read(SampleRate,4);
     num = (((u8)SampleRate[3] << 24) | ((u8)SampleRate[2] << 16) | ((u8)SampleRate[1] << 8) | (u8)SampleRate[0]);
-    cout << num << endl;
+    cout << "SampleRate: " << num << endl;
 
     ifstr.read(ByteRate,4);
     num = (((u8)ByteRate[3] << 24) | ((u8)ByteRate[2] << 16) | ((u8)ByteRate[1] << 8) | (u8)ByteRate[0]);
-    cout << num << endl;
+    cout << "ByteRate: " << num << endl;
 
     ifstr.read(BlockAlign,2);
     num = 0;
     num = (((u8)BlockAlign[1] << 8) | (u8)BlockAlign[0]);
-    cout << num << endl;
+    cout << "BlockAlign: " << num << endl;
 
     ifstr.read(BitsPerSample,2);
     num = 0;
     num = (((u8)BitsPerSample[1] << 8) | (u8)BitsPerSample[0]);
-    cout << num << endl;
+    cout << "BitsPerSample: " << num << endl;
 
     ifstr.read(SubChunk2ID,4);
-    cout << SubChunk2ID << endl;
+    cout << "SubChunk2ID: " << SubChunk2ID << endl;
 
     ifstr.read(SubChunk2Size,4);
     num = ((u8)SubChunk2Size[3] << 24) | ((u8)SubChunk2Size[2] << 16) | ((u8)SubChunk2Size[1] << 8) | (u8)SubChunk2Size[0];
-    cout << num << endl;
+    cout << "SubChunk2Size: " << num << endl;
     int msize = num;
 
     vector<int> data;

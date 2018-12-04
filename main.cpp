@@ -13,15 +13,24 @@ using namespace std;
 int main(int argc, char *argv[])
 {
   FileReader reader;
-  vector<int> data = reader.read("example2.wav");
+  vector<int> data = reader.read("../wavfiles/example2.wav");
 
   for (vector<int>::iterator i = data.begin(); i != data.end(); ++i){
     //cout << *i << endl;
-  }
+  } // what is the purpose of this?
+
+  // initialize buffer vars
+  unsigned inputLength = data.size();
+  unsigned vecSize = 1024; // ideally should be power of 2
+  unsigned buffCount = inputLength/vecSize;
+  unsigned buffLeftover = inputLength % vecSize;
+  unsigned analysisPeriod = 5; //This var determines how many buffers to wait before analyzing again
+  cout << "buffer vars: " << inputLength << " " << vecSize << " " << buffCount << " " << buffLeftover << " " << analysisPeriod << endl;
+
+  //initialize output analysis matrix
+  
 
   cout << "Initializing vector for analysis" << endl;
-  unsigned vecSize = 1024; // ideally this should be a power of 2
-  cout << "about to create an array with kiss scalar type..." << endl; // This step in the main function creates a segmentation fault. Perhaps kiss_fft_scalar type is not initialized properly?
   kiss_fft_scalar inputfft[vecSize];
   cout << "input vector of size " << vecSize << ": ";
 
@@ -41,11 +50,11 @@ int main(int argc, char *argv[])
   kiss_fftr(cfg, inputfft, outputfft);
   cout << "Made it past fftr" << endl;
 	
-  for (int i = 0; i < vecSize; i++) {
-    cout << "Mag = " <<sqrt(pow(outputfft[i].r,2) + pow(outputfft[i].i,2)) << " : ";
-    cout << outputfft[i].r << " + " << outputfft[i].i << "i";
-    cout << endl;
-  }
+  //for (int i = 0; i < vecSize; i++) {
+  //  cout << "Mag = " <<sqrt(pow(outputfft[i].r,2) + pow(outputfft[i].i,2)) << " : ";
+  //  cout << outputfft[i].r << " + " << outputfft[i].i << "i";
+  //  cout << endl;
+  //}
 
   
 }
