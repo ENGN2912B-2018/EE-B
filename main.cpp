@@ -15,10 +15,6 @@ int main(int argc, char *argv[])
   FileReader reader;
   vector<int> data = reader.read("../wavfiles/example2.wav");
 
-  for (vector<int>::iterator i = data.begin(); i != data.end(); ++i){
-    //cout << *i << endl;
-  } // what is the purpose of this?
-
   // initialize buffer vars
   unsigned inputLength = data.size();
   unsigned vecSize = 1024; // ideally should be power of 2
@@ -29,34 +25,45 @@ int main(int argc, char *argv[])
 
   //initialize output analysis matrix
   
-
-  cout << "Initializing vector for analysis" << endl;
-  kiss_fft_scalar inputfft[vecSize];
-  cout << "input vector of size " << vecSize << ": ";
-
-  for (int i = 0; i < vecSize; i++) {
-    inputfft[i] = data[i];
+  for (unsigned i = 0; i < buffLeftover; ++i){
+    data.push_back(0);
   }
-		
-  cout << "\nSuccessfully generated vector of length " << vecSize << endl;
-  cout << "Prepping kiss_fft for FFT" << endl;
 
-  kiss_fftr_cfg cfg;
-  cfg = kiss_fftr_alloc(vecSize, 0,0,0);
-  cout << "Pushed input vector into cx_in" << endl;
-  cout << "Initializing output vector. Calling fftr" << endl;
-  kiss_fft_cpx outputfft[vecSize];
-  cout << "HI" << endl;
-  kiss_fftr(cfg, inputfft, outputfft);
-  cout << "Made it past fftr" << endl;
-	
-  //for (int i = 0; i < vecSize; i++) {
-  //  cout << "Mag = " <<sqrt(pow(outputfft[i].r,2) + pow(outputfft[i].i,2)) << " : ";
-  //  cout << outputfft[i].r << " + " << outputfft[i].i << "i";
-  //  cout << endl;
-  //}
+  vector<vector<double>> ffts;
+  for(unsigned i = 0; i <= buffCount; i++){
+    if(i%analysisPeriod == 0){
+      cout << "Initializing vector for analysis i = " << i << endl;
+      cout << "about to create an array with kiss scalar type..." << endl;
+      kiss_fft_scalar inputfft[vecSize];
+      cout << "input vector of size " << vecSize << ": ";
 
-  
+      for (int j = 0; j < vecSize; j++) {
+	inputfft[j] = data[j+i*vecSize];
+      }
+
+      cout << "\nSuccessfully generated vector of length " << vecSize << endl;
+      cout << "Prepping kiss_fft for FFT" << endl;
+
+      kiss_fftr_cfg cfg;
+      cfg = kiss_fftr_alloc(vecSize, 0,0,0);
+      cout << "Pushed input vector into cx_in" << endl;
+      cout << "Initializing output vector. Calling fftr" << endl;
+      kiss_fft_cpx outputfft[vecSize];
+      cout << "HI" << endl;
+      kiss_fftr(cfg, inputfft, outputfft);
+      cout << "Made it past fftr" << endl;
+
+      vector<double> mag;
+
+      for (int i = 0; i < vecSize; i++) {
+	mag.push_back(sqrt(pow(outputfft[i].r,2) + pow(outputfft[i].i,2)));
+	cout << "Mag = " <<sqrt(pow(outputfft[i].r,2) + pow(outputfft[i].i,2)) << " : ";
+	cout << outputfft[i].r << " + " << outputfft[i].i << "i";
+	cout << endl;
+      }
+      ffts.push_back(mag);
+    } 
+  }  
 }
 
 //http://soundfile.sapp.org/doc/WaveFormat/
