@@ -15,3 +15,9 @@ add_subdirectory(src)
 
 add_executable(RemoveFeedback main.cpp)
 target_link_libraries(RemoveFeedback fftLibrary sourceFiles)
+
+add_custom_command(
+        TARGET RemoveFeedback POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy
+                ${CMAKE_SOURCE_DIR}/wavfiles/example2.wav
+                ${CMAKE_CURRENT_BINARY_DIR}/example2.wav)
