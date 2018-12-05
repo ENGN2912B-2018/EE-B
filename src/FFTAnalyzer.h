@@ -10,16 +10,19 @@ class FFTAnalyzer
 			std::cout << "Class initialized with vecSize " << vecSize << " and analysisPeriod " << analysisPeriod << std::endl;
 		}
         ~FFTAnalyzer() {}
-        std::vector<std::vector<int> > fileAnalyze(std::vector<int> data) {}
 
-    protected:
+        std::vector<std::vector<int> > fileAnalyze(std::vector<int> data);
 
-    private:
+	//vars	
 		unsigned inputLength;
 		unsigned vecSize;
 		unsigned buffCount;
 		unsigned buffLeftover;
 		unsigned analysisPeriod;
+
+    protected:
+
+    private:
 };
 
 #endif // FFTANALYZER_H
