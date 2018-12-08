@@ -5,9 +5,9 @@
 #include <vector>
 #include <string>
 #include "FileReader.h"
-#include "FFTAnalyzer.h"
 #include "kiss_fft.h"
 #include "tools/kiss_fftr.h"
+#include "../src/FFTAnalyzer.h"
 
 using namespace std;
 
@@ -17,8 +17,7 @@ int main(int argc, char *argv[])
   vector<int> data = reader.read("../wavfiles/example2.wav");
 
 	FFTAnalyzer test(1024, 5);
-	cout << "FFTAnalyzer class successfully initialized. Running analyze funct." << endl;
-	vector<vector<int> > aaaaaaaaa = test.fileAnalyze(data);
+	vector<vector<int> > analysis = test.fileAnalyze(data);
 
 } //http://soundfile.sapp.org/doc/WaveFormat/
 

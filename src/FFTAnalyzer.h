@@ -3,15 +3,71 @@
 #include <iostream>
 #include <vector>
 
+using namespace std;
+
 class FFTAnalyzer
 {
     public:
-		FFTAnalyzer(unsigned vS, unsigned aP): vecSize(vS), analysisPeriod(aP) {
-			std::cout << "Class initialized with vecSize " << vecSize << " and analysisPeriod " << analysisPeriod << std::endl;
-		}
-        ~FFTAnalyzer() {}
 
-        std::vector<std::vector<int> > fileAnalyze(std::vector<int> data);
+FFTAnalyzer(unsigned vS, unsigned aP): vecSize(vS), analysisPeriod(aP) {
+	cout << "Class init with vecSize " << vecSize << " and analysisPeriod " << analysisPeriod << endl;
+	}
+
+~FFTAnalyzer() {}
+
+std::vector<std::vector<int> > fileAnalyze(std::vector<int> data){
+	//std::cout << "Inside analyzer function." << std::endl;
+//define some vars
+	inputLength = data.size();
+	buffCount = inputLength/vecSize;
+	buffLeftover = inputLength%vecSize;
+	bool isLeftovers;
+	vector<vector<int> > matrixoutput;
+	kiss_fft_scalar inputfft[vecSize];
+	kiss_fft_cpx outputfft[vecSize];
+	kiss_fftr_cfg cfg;
+	cfg = kiss_fftr_alloc(vecSize,0,0,0);
+	//cout << "Vars defined/allocated" << endl;
+//analyze chunks periodically
+	if (buffLeftover > 0) {buffCount = buffCount + 1; isLeftovers = true;} // if leftovers exist, increase buffer count by 1
+	for (int i = 0; i < buffCount; i++) {
+		//cout << "Chunk = " << i+1 << "/" << buffCount;
+		if (i%analysisPeriod == 0) {
+			if ((i+1 == buffCount) && (isLeftovers == true)) { // pad with zeros if at last chunk
+				//cout << "inside leftover if statement" << endl;
+				for (int k = 0; k < vecSize; k++) { // fill with zeros
+					inputfft[k+1] = 0;
+				}
+				for (int k = 0; k < buffLeftover; k++) { // fill beginning with leftovers
+					inputfft[k+1] = data[(i*vecSize)+1];
+				}
+			} else {
+				//cout << "Inside normal if statement" << endl;
+				for (int k = 0; k < vecSize; k++) {
+					int l = (i*vecSize)+1+k;
+					//cout << "Filling " << k+1 << "/" << vecSize << " with data[" << l << "] = " << data[l] << endl;
+					inputfft[k] = data[l];
+				}
+			}
+			//cout << "about to call fftr... " << endl;
+			kiss_fftr(cfg, inputfft, outputfft);
+			//cout << "initializing output vector to be pushed into matrix" << endl;
+			vector<int> temp;
+			//cout << "MADE IT HERE!!" << endl;
+			for (int k = 0; k < vecSize; k++) {
+				//cout << "find magnitude of " << outputfft[k+1].r << " + i" << outputfft[k+1].i << endl;
+				temp.push_back(sqrt(pow(outputfft[k+1].r,2) + pow(outputfft[k+1].i,2)));
+			}
+			//cout << "Filled vector with magnitude of fftr. Pushing to output matrix... " << endl;
+			matrixoutput.push_back(temp);
+			//cout << "pushed back! i = " << i << endl;
+		}
+	}	
+
+	cout << "Returning output matrix of dimensions " << matrixoutput.size() << "x" << matrixoutput[0].size() << "." << endl;
+	return matrixoutput;
+
+}
 
 	//vars	
 		unsigned inputLength;
