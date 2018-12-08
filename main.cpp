@@ -13,10 +13,10 @@ using namespace std;
 
 int main(int argc, char *argv[])
 {
-  FileReader reader;
-  vector<int> data = reader.read("../wavfiles/example2.wav");
+	FileReader reader;
+	vector<int> data = reader.read("../wavfiles/example2.wav");
 
-	FFTAnalyzer test(1024, 5);
+	FFTAnalyzer test(1024, 5, reader.getsamplerate());
 	vector<vector<int> > analysis = test.fileAnalyze(data);
 
 } //http://soundfile.sapp.org/doc/WaveFormat/

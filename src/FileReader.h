@@ -12,10 +12,11 @@ class FileReader
         FileReader();
         ~FileReader();
         vector<int> read(string filename);
-
+		unsigned getsamplerate();
+		
     protected:
-
     private:
+		unsigned sampleRate;
 };
 
 #endif // FILEREADER_H

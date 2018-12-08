@@ -65,7 +65,8 @@ vector<int> FileReader::read(string fileName)
 
     ifstr.read(SampleRate,4);
     num = (((u8)SampleRate[3] << 24) | ((u8)SampleRate[2] << 16) | ((u8)SampleRate[1] << 8) | (u8)SampleRate[0]);
-    cout << "SampleRate: " << num << endl;
+    sampleRate = num;
+	cout << "SampleRate: " << num << endl;
 
     ifstr.read(ByteRate,4);
     num = (((u8)ByteRate[3] << 24) | ((u8)ByteRate[2] << 16) | ((u8)ByteRate[1] << 8) | (u8)ByteRate[0]);
@@ -100,4 +101,9 @@ vector<int> FileReader::read(string fileName)
         data.push_back(sampleInt);
     }
     return data;
+}
+
+unsigned FileReader::getsamplerate()
+{
+	return sampleRate;
 }

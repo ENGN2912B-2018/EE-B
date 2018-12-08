@@ -2,6 +2,7 @@
 #define FFTANALYZER_H
 #include <iostream>
 #include <vector>
+#include <iomanip>
 
 using namespace std;
 
@@ -9,8 +10,8 @@ class FFTAnalyzer
 {
     public:
 
-FFTAnalyzer(unsigned vS, unsigned aP): vecSize(vS), analysisPeriod(aP) {
-	cout << "Class init with vecSize " << vecSize << " and analysisPeriod " << analysisPeriod << endl;
+FFTAnalyzer(unsigned vS, unsigned aP, unsigned sR): vecSize(vS), analysisPeriod(aP), sampleRate(sR) {
+	cout << "Beginning " << vecSize << "-pt analysis of " << sampleRate << " Hz signal" << endl;
 	}
 
 ~FFTAnalyzer() {}
@@ -62,9 +63,12 @@ std::vector<std::vector<int> > fileAnalyze(std::vector<int> data){
 			matrixoutput.push_back(temp);
 			//cout << "pushed back! i = " << i << endl;
 		}
-	}	
-
-	cout << "Returning output matrix of dimensions " << matrixoutput.size() << "x" << matrixoutput[0].size() << "." << endl;
+	}
+float time = (float)(inputLength)/(float)(sampleRate);
+float period = (float)(vecSize)*(float)(analysisPeriod)/(float)(sampleRate);
+cout << fixed << setprecision(3);	
+cout << "Analyzed " << time << "s of audio every " << period << "s" << endl;
+cout << "Returning output matrix of dimensions " << matrixoutput.size() << "x" << matrixoutput[0].size() << "." << endl;
 	return matrixoutput;
 
 }
@@ -75,6 +79,7 @@ std::vector<std::vector<int> > fileAnalyze(std::vector<int> data){
 		unsigned buffCount;
 		unsigned buffLeftover;
 		unsigned analysisPeriod;
+		unsigned sampleRate;
 
     protected:
 
