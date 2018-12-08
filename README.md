@@ -11,21 +11,14 @@ The output of this project is meant to be an extractable feedback detection algo
 
 After cloning the repository, you can build with CMake. From the root directory (EE-B), input:
 
-
-mkdir build
-
+`mkdir build
 cd build
-
 cmake CMAKE_CXX_COMPILER=g++ ..
-
-make
-
+make`
 
 And to run:
 
-
-./RemoveFeedback
-
+`./RemoveFeedback`
 
 ## Usage Documentation
 
