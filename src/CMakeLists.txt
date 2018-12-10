@@ -8,6 +8,6 @@ else ()
     SET ( CMAKE_CXX_FLAGS "-D_GLIBCXX_USE_CXX11_ABI=0" ) 
 endif ()
 
-add_library(sourceFiles FileReader.h FileReader.cpp)
+add_library(sourceFiles FileReader.h FileReader.cpp FeedbackID.h FeedbackID.cpp)
 
 set_target_properties(sourceFiles PROPERTIES LINKER_LANGUAGE CXX)
