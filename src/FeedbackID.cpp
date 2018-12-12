@@ -4,18 +4,6 @@
 #include <vector>
 #include <cstdlib>
 
-
-int findMin(vector<int> data)
-{
-	//neglect first number in vector as it's the DC component. Should always be 0
-	return *std::min_element(data.begin()+1,data.end());
-}
-
-int findMax(vector<int> data)
-{
-	return *std::max_element(data.begin(),data.end());
-}
-
 using namespace std;
 
 FeedbackID::FeedbackID()
@@ -70,7 +58,6 @@ vector<vector<int> > FeedbackID::findFeedback(vector<vector<int> > data)
 // How should the probabilty change as the mag approchaces the transform? 
 void FeedbackID::SNRCheck(int i, vector<vector<int> > data)
 {
-<<<<<<< HEAD
   //cout << "Living it up inside the SNR check function " << i << endl;
   cout << "Minimum of " << i <<  " = " << findMax(data[i]) << endl;
   int spacing = (SNLThresholdH_ - SNLThresholdL_) / 32767;
@@ -160,12 +147,3 @@ void FeedbackID::Average(int i)
     probs[i][j] = (SNLProbs[i][j]*SNLWeight_ + SwellProbs[i][j]*SwellWeight_ + SpecWidthProbs[i][j]*SpecWeight_ + SustainProbs[i][j]*SustainWeight_) / 4;
   }
 }
-
-
-
-
-=======
-	cout << "Minimum of " << i <<  " = " << findMin(data[i]) << endl;
-}
-
->>>>>>> 4fb81a15df0b2feef834c0ee0843fb0cc23babf6
