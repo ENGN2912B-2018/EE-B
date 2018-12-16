@@ -8,15 +8,15 @@ using namespace std;
 
 class FileReader
 {
-    public:
-        FileReader();
-        ~FileReader();
-        vector<int> read(string filename);
-		unsigned getsamplerate();
+ public:
+  FileReader();
+  ~FileReader();
+  vector<int> read(string filename);
+  unsigned getsamplerate();
 		
-    protected:
-    private:
-		unsigned sampleRate;
+ protected:
+ private:
+  unsigned sampleRate;
 };
 
 #endif // FILEREADER_H
