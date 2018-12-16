@@ -19,15 +19,15 @@ FeedbackID::FeedbackID(vector<vector<int> > analysis)
   SwellThresholdL_ = 400;
   SpecThreshold_ = SwellThresholdL_;
   SpecMaxWidth_ = 10;
-  probPerSustain_ = 0.25;
+  probPerSustain_ = 25;
   HarmonicRatio_ = 1;
   HarmonicMax_ = 4;
 
-  SNLWeight_ = 1;
-  SwellWeight_ = 1;
-  HarmonicWeight_ = 1;
-  SpecWeight_ = 1;
-  SustainWeight_ = 1;
+  SNLWeight_ = 100;
+  SwellWeight_ = 100;
+  HarmonicWeight_ = 100;
+  SpecWeight_ = 100;
+  SustainWeight_ = 100;
 }
 
 FeedbackID::~FeedbackID()
@@ -65,25 +65,25 @@ void FeedbackID::checkValues(){
   if(SpecMaxWidth_ <= 0)
     cout << "RANGE ERROR: The width of the spectrum check must be greator than 0" << endl;
 
-  if(probPerSustain_ <= 0 || probPerSustain_ >= 1)
-    cout << "RANGE ERROR: The Probabilty addition for sustained frequancy per sample must be bwtween greator than 0 and less than 1" << endl;
+  if(probPerSustain_ <= 0 || probPerSustain_ >= 100)
+    cout << "RANGE ERROR: The Probabilty addition for sustained frequancy per sample must be bwtween greator than 0 and less than 100" << endl;
 
   if(HarmonicRatio_ <= 0 || HarmonicRatio_ > 1)
-     cout << "RANGE ERROR: The Ratio between harmonics must be greator than 0 and less than or equal to 1" << endl;
+    cout << "RANGE ERROR: The Ratio between harmonics must be greator than 0 and less than or equal to 1" << endl;
 
   if(HarmonicMax_ <= 0)
     cout << "RANGE ERROR: The amount of harmonics to check must be greator than 0" << endl;
 
-  if(SNLWeight_ <= 0 || SNLWeight_ > 1)
-    cout << "RANGE ERROR: The weight of the SNL check must be greator than 0 and less than or equal to 1" << endl;
-  if(SwellWeight_ <= 0 || SwellWeight_ > 1)
-    cout << "RANGE ERROR: The weight of the Swell check must be greator than 0 and less than or equal to 1" << endl;
-  if(HarmonicWeight_ <= 0 || HarmonicWeight_ > 1)
-    cout << "RANGE ERROR: The weight of the Harmonic check must be greator than 0 and less than or equal to 1" << endl;
-  if(SpecWeight_ <= 0 || SpecWeight_ > 1)
-    cout << "RANGE ERROR: The weight of the Specturm Width check must be greator than 0 and less than or equal to 1" << endl;
-  if(SustainWeight_ <= 0 || SustainWeight_ > 1)
-    cout << "RANGE ERROR: The weight of the Sustain check must be greator than 0 and less than or equal to 1" << endl;
+  if(SNLWeight_ <= 0 || SNLWeight_ > 100)
+    cout << "RANGE ERROR: The weight of the SNL check must be greator than 0 and less than or equal to 100" << endl;
+  if(SwellWeight_ <= 0 || SwellWeight_ > 100)
+    cout << "RANGE ERROR: The weight of the Swell check must be greator than 0 and less than or equal to 100" << endl;
+  if(HarmonicWeight_ <= 0 || HarmonicWeight_ > 100)
+    cout << "RANGE ERROR: The weight of the Harmonic check must be greator than 0 and less than or equal to 100" << endl;
+  if(SpecWeight_ <= 0 || SpecWeight_ > 100)
+    cout << "RANGE ERROR: The weight of the Specturm Width check must be greator than 0 and less than or equal to 100" << endl;
+  if(SustainWeight_ <= 0 || SustainWeight_ > 100)
+    cout << "RANGE ERROR: The weight of the Sustain check must be greator than 0 and less than or equal to 100" << endl;
 
 }
 
@@ -254,11 +254,11 @@ void FeedbackID::SustainCheck(int i)
   for(unsigned j = 0; j < data[i].size(); j++){
     if(i != 0){
       if((SwellProbs[i][j] >= 1 || SNLProbs[i][j] >= 1) && (SwellProbs[i-1][j] >= 1 || SNLProbs[i-1][j] >= 1)){
-	if(SustainProbs[i-1][j] + (probPerSustain_*MaxProb_ >= MaxProb_)){
+	if(SustainProbs[i-1][j] + (((probPerSustain_/100))*MaxProb_ >= MaxProb_)){
 	  SustainProbs[i][j] = MaxProb_;
 	  }
 	else
-	  SustainProbs[i][j] =  SustainProbs[i-1][j] + (probPerSustain_*MaxProb_);	
+	  SustainProbs[i][j] =  SustainProbs[i-1][j] + (probPerSustain_/100*MaxProb_);	
       }
       else
 	SustainProbs[i][j] = 0;
@@ -269,18 +269,19 @@ void FeedbackID::SustainCheck(int i)
 void FeedbackID::Average(int i)
 {
   for(unsigned j = 0; j < probs[i].size(); j++){
-    probs[i][j] = (SNLProbs[i][j]*SNLWeight_ + SwellProbs[i][j]*SwellWeight_ + HarmonicProbs[i][j]*HarmonicWeight_+ SpecWidthProbs[i][j]*SpecWeight_ + SustainProbs[i][j]*SustainWeight_) / (SNLWeight_ + SwellWeight_ + HarmonicWeight_ + SpecWeight_ + SustainWeight_);
+    probs[i][j] = (SNLProbs[i][j]*((int)(SNLWeight_/100)) + SwellProbs[i][j]*((int)(SwellWeight_/100)) + HarmonicProbs[i][j]*((int)(HarmonicWeight_/100))+ SpecWidthProbs[i][j]*((int)(SpecWeight_/100)) + SustainProbs[i][j]*((int)(SustainWeight_/100))) /((int) ((SNLWeight_ + SwellWeight_ + HarmonicWeight_ + SpecWeight_ + SustainWeight_)/100));
   }
 
   if(i == 148){
     for(unsigned j = 0; j < probs[i].size(); j++){
-      //cout << "SNLCHECK j = " << j << " Data: " << data[i][j] << " Prob:  " << SNLProbs[i][j] << endl;
+      //cout << "SNLCHECK j = " << j << " Data: " << data[i][j] << " Prob:  " << SNLProbs[i][j]*((int)(SNLWeight_/100)) << endl;
       //cout << "SWELLCHECK j = " << j << " Data i-1: " << data[i-1][j] << " Data i: " << data[i][j] << " Prob: " << SwellProbs[i][j] << endl;
       //cout << "SWCHECK j = " << j << " Data i-1: " << data[i-1][j] << " Data i: " << data[i][j] <<  " Prob:  " << SpecWidthProbs[i][j] << endl;
       //cout << "SUSTAINCHECK j = " << j << " Data i-1: " << data[i-1][j] << " Data i: " << data[i][j] <<  " Prob:  " << SustainProbs[i][j] << endl;
       if(j*2 <= data[i].size()){
 	//cout << "HarmonicCheck j = " << j << " Data i,j: " << data[i][j] << " Data i,j*2: " << data[i][j*2] <<  " Prob:  " << HarmonicProbs[i][j] << endl;
       }
+      //cout << "Probs j = " << j << " Data: " << data[i][j] << " Prob:  " << probs[i][j] << endl;
     }
   }  
 }
