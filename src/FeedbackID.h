@@ -47,6 +47,7 @@ class FeedbackID
 
 	double SNLWeight_;
 	double SwellWeight_;
+	double HarmonicWeight_;
 	double SpecWeight_;
 	double SustainWeight_;
 };
