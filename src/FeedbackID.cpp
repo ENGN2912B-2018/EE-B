@@ -42,15 +42,16 @@ vector<vector<int> > FeedbackID::findFeedback(vector<vector<int> > data)
 	  probs.push_back(temp);
 	  SNLProbs.push_back(temp);
 	  SwellProbs.push_back(temp);
+	  HarmonicProbs.push_back(temp);
 	  SpecWidthProbs.push_back(temp);
 	  SustainProbs.push_back(temp);
 
 	  SNRCheck(i, data);
 	  SwellCheck(i, data);
-	  //HarmonicCheck(i, data);
+	  HarmonicCheck(i, data);
 	  SpecWidthCheck(i, data);
 	  SustainCheck(i, data);	
-	  Average(i);
+	  Average(i, data);
 	}
 	return probs;
 }
@@ -59,7 +60,7 @@ vector<vector<int> > FeedbackID::findFeedback(vector<vector<int> > data)
 void FeedbackID::SNRCheck(int i, vector<vector<int> > data)
 {
   //cout << "Living it up inside the SNR check function " << i << endl;
-  cout << "Minimum of " << i <<  " = " << findMax(data[i]) << endl;
+  //cout << "Max of " << i <<  " = " << findMax(data[i]) << endl;
   int spacing = (SNLThresholdH_ - SNLThresholdL_) / 32767;
   for (unsigned j = 0; j < data[i].size(); j++){
     if(data[i][j] >= SNLThresholdL_){
@@ -75,7 +76,7 @@ void FeedbackID::SNRCheck(int i, vector<vector<int> > data)
 
 void FeedbackID::SwellCheck(int i, vector<vector<int> > data)
 {
-  int spacing = (SwellThresholdH_ - SwellThresholdL_) / 32767;
+  int spacing = 32767 / (SwellThresholdH_ - SwellThresholdL_);
   for (unsigned j = 0; j < data[i].size(); j++){
     if(i != 0){
       if(data[i][j] - data[i-1][j] >= SwellThresholdL_){
@@ -92,13 +93,38 @@ void FeedbackID::SwellCheck(int i, vector<vector<int> > data)
 
 void FeedbackID::HarmonicCheck(int i, vector<vector<int> > data)
 {
-  
+  int harmonicStep = 32767 / HarmonicMax_;
+  for (unsigned j = 0; j < data[i].size(); j++){
+    unsigned count = 0;
+    if((SwellProbs[i][j] >= 1 || SNLProbs[i][j] >= 1)){
+      bool loopFlag = true;
+      unsigned index = j;
+      while(loopFlag && index*2 < 1024){
+	if(data[i][index*2] >= data[i][index]*HarmonicRatio_){
+	  count++;
+	  index = index*2;
+	}
+	else{
+	  loopFlag = false;
+	}
+      }
+      if(count >= HarmonicMax_){
+	HarmonicProbs[i][j] = 0;
+      }
+      else{
+	HarmonicProbs[i][j] = (HarmonicMax_ - count) * harmonicStep;
+      }
+    }
+    else{
+      HarmonicProbs[i][j] = 0;
+    }
+  }
 }
 
 void FeedbackID::SpecWidthCheck(int i, vector<vector<int> > data)
 {
   for(unsigned j = 0; j < data[i].size(); j++){
-    if((SwellProbs[i][j] >= 16000 || SNLProbs[i][j] >= 16000) && i != 0){
+    if((SwellProbs[i][j] >= 1) && i != 0){
       bool loopFlag = true;
       unsigned width = 1;
       unsigned count = 0;
@@ -128,22 +154,37 @@ void FeedbackID::SpecWidthCheck(int i, vector<vector<int> > data)
 void FeedbackID::SustainCheck(int i, vector<vector<int> > data)
 {
   for(unsigned j = 0; j < data[i].size(); j++){
-    if((SwellProbs[i][j] >= 16000 || SNLProbs[i][j] >= 16000) && i != 0){
-      if(i!=0){
-	if(data[i][j] - data[i-1][j] >= SustainThreshold_){
-	  if(SustainProbs[i-1][j] + (0.05*32767) >= 32767)
-	    SustainProbs[i][j] = 32767;
-	  else
-	    SustainProbs[i][j] =  SustainProbs[i-1][j] + (0.05*32767);
+    if(i != 0){
+      if((SwellProbs[i][j] >= 1 || SNLProbs[i][j] >= 1) && (SwellProbs[i-1][j] >= 1 || SNLProbs[i-1][j] >= 1)){
+	if(SustainProbs[i-1][j] + (probPerSustain_*32767) >= 32767){
+	  SustainProbs[i][j] = 32767;
 	}
+	else
+	  SustainProbs[i][j] =  SustainProbs[i-1][j] + (probPerSustain_*32767);	
       }
+      else
+	SustainProbs[i][j] = 0;
     }
   }
 }
 
-void FeedbackID::Average(int i)
+void FeedbackID::Average(int i, vector<vector<int> > data)
 {
   for(unsigned j = 0; j < probs[i].size(); j++){
     probs[i][j] = (SNLProbs[i][j]*SNLWeight_ + SwellProbs[i][j]*SwellWeight_ + SpecWidthProbs[i][j]*SpecWeight_ + SustainProbs[i][j]*SustainWeight_) / 4;
   }
+
+  if(i == 148){
+    for(unsigned j = 0; j < probs[i].size(); j++){
+      //cout << "SNLCHECK j = " << j << " Data: " << data[i][j] << " Prob:  " << SNLProbs[i][j] << endl;
+      //cout << "SWELLCHECK j = " << j << " Data i-1: " << data[i-1][j] << " Data i: " << data[i][j] << " Prob: " << SwellProbs[i][j] << endl;
+      //cout << "SWCHECK j = " << j << " Data i-1: " << data[i-1][j] << " Data i: " << data[i][j] <<  " Prob:  " << SpecWidthProbs[i][j] << endl;
+      //cout << "SUSTAINCHECK j = " << j << " Data i-1: " << data[i-1][j] << " Data i: " << data[i][j] <<  " Prob:  " << SustainProbs[i][j] << endl;
+      if(j*2 <= 1024){
+	//cout << "HarmonicCheck j = " << j << " Data i,j: " << data[i][j] << " Data i,j*2: " << data[i][j*2] <<  " Prob:  " << HarmonicProbs[i][j] << endl;
+      }
+    }
+  }
+
+  
 }

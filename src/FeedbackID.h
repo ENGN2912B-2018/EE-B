@@ -16,7 +16,7 @@ class FeedbackID
 	void HarmonicCheck(int i, vector<vector<int> > data);
 	void SpecWidthCheck(int i, vector<vector<int> > data);
 	void SustainCheck(int i, vector<vector<int> > data);
-	void Average(int i);
+	void Average(int i, vector<vector<int> > data);
   
     protected:
 
@@ -30,11 +30,14 @@ class FeedbackID
 
 	double SNLThresholdH_ = 800;
 	double SNLThresholdL_ = 200;
-	double SwellThresholdH_ = 10000;
-	double SwellThresholdL_ = 1000;
+	double SwellThresholdH_ = 2000;
+	double SwellThresholdL_ = 400;
 	double SpecThreshold_ = 400;
 	double probPerWidth_ = .1;
 	double SustainThreshold_ = -200;
+	double probPerSustain_ = 0.25;
+	double HarmonicRatio_ = 1;
+	double HarmonicMax_ = 4;
 
 	double SNLWeight_ = 1;
 	double SwellWeight_ = 1;
