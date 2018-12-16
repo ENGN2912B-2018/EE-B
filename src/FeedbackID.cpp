@@ -49,7 +49,8 @@ vector<vector<int> > FeedbackID::findFeedback(vector<vector<int> > data)
 	  SNRCheck(i, data);
 	  SwellCheck(i, data);
 	  HarmonicCheck(i, data);
-	  SpecWidthCheck(i, data);
+	  //SpecWidthCheck(i, data);
+	  SpecWidthCheck2(i, data);
 	  SustainCheck(i, data);	
 	  Average(i, data);
 	}
@@ -123,6 +124,7 @@ void FeedbackID::HarmonicCheck(int i, vector<vector<int> > data)
 
 void FeedbackID::SpecWidthCheck(int i, vector<vector<int> > data)
 {
+  int specStep = 32767 / SpecMaxWidth_;
   for(unsigned j = 0; j < data[i].size(); j++){
     if((SwellProbs[i][j] >= 1) && i != 0){
       bool loopFlag = true;
@@ -134,17 +136,50 @@ void FeedbackID::SpecWidthCheck(int i, vector<vector<int> > data)
 	    count++;
 	  else
 	    loopFlag = false;
-	if(j <= 1024 - width)
+	if(j < 1024 - width)
 	  if(data[i][j+width] - data[i-1][j+width] >= SpecThreshold_)
 	    count++;
 	  else
 	    loopFlag = false;
 	width++;
       }
-      if(count >= 10)
+      if(count >= SpecMaxWidth_)
 	SpecWidthProbs[i][j] = 32767;
       else
-	SpecWidthProbs[i][j] = 3276 * count;
+	SpecWidthProbs[i][j] = specStep * count;
+    }
+    else
+      SpecWidthProbs[i][j] = 0;
+  }
+}
+
+void FeedbackID::SpecWidthCheck2(int i, vector<vector<int> > data)
+{
+  int specStep = 32767 / SpecMaxWidth_;
+  for(unsigned j = 0; j < data[i].size(); j++){
+    if((SwellProbs[i][j] >= 1) && i != 0){
+      bool loopFlag = true;
+      unsigned width = 1;
+      unsigned count = 0;
+      unsigned check = SpecMaxWidth_;
+      while(check != 0 && loopFlag){
+	if(j >= width){
+	  if(data[i][j-width] - data[i-1][j-width] >= SpecThreshold_){
+	    count++;
+	  }
+	}
+	if(j < 1024 - width){
+	  if(data[i][j+width] - data[i-1][j+width] >= SpecThreshold_){
+	    count++;
+	  }
+	}
+	check--;
+	width++;
+      }
+      if(count >= SpecMaxWidth_)
+	SpecWidthProbs[i][j] = 32767;
+      else
+	SpecWidthProbs[i][j] = specStep * count;
     }
     else
       SpecWidthProbs[i][j] = 0;
