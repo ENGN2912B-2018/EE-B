@@ -8,45 +8,47 @@ using namespace std;
 class FeedbackID
 {
     public:
-        FeedbackID();
+        FeedbackID(vector<vector<int> > data);
         ~FeedbackID();
-        vector<vector<int> > findFeedback(vector<vector<int> > data);
-	void SNRCheck(int i, vector<vector<int> > data);
-	void SwellCheck(int i, vector<vector<int> > data);
-	void HarmonicCheck(int i, vector<vector<int> > data);
-	void SpecWidthCheck(int i, vector<vector<int> > data);
-	void SpecWidthCheck2(int i, vector<vector<int> > data);
-	void SustainCheck(int i, vector<vector<int> > data);
-	void Average(int i, vector<vector<int> > data);
+        vector<vector<int> > findFeedback();
+	void SNRCheck(int i);
+	void SwellCheck(int i);
+	void HarmonicCheck(int i);
+	void SpecWidthCheck(int i);
+	void SpecWidthCheck2(int i);
+	void SustainCheck(int i);
+	void Average(int i);
   
     protected:
 
     private:
-	vector<vector<int> > probs; //generate output matrix. Maybe fill it with some initial probability?
+	vector<vector<int> > data;
+
+	vector<vector<int> > probs;
 	vector<vector<int> > SNLProbs;
 	vector<vector<int> > SwellProbs;
 	vector<vector<int> > HarmonicProbs;
 	vector<vector<int> > SpecWidthProbs;
 	vector<vector<int> > SustainProbs;
 
-	double SNLThresholdH_ = 800;
-	double SNLThresholdL_ = 200;
-	double SwellThresholdH_ = 2000;
-	double SwellThresholdL_ = 400;
-	double SpecThreshold_ = 400;
-	double SpecMaxWidth_ = 10;
-	double probPerWidth_ = .1;
-	double SustainThreshold_ = -200;
-	double probPerSustain_ = 0.25;
-	double HarmonicRatio_ = 1;
-	double HarmonicMax_ = 4;
+	int MaxProb_;
 
-	double SNLWeight_ = 1;
-	double SwellWeight_ = 1;
-	double SpecWeight_ = 1;
-	double SustainWeight_ = 1;
-		
+	double SNLThresholdH_;
+	double SNLThresholdL_;
+	double SwellThresholdH_;
+	double SwellThresholdL_;
+	double SpecThreshold_;
+	double SpecMaxWidth_;
+	double probPerWidth_;
+	double SustainThreshold_;
+	double probPerSustain_;
+	double HarmonicRatio_;
+	double HarmonicMax_;
 
+	double SNLWeight_;
+	double SwellWeight_;
+	double SpecWeight_;
+	double SustainWeight_;
 };
 
 #endif // FEEDBACKID_H

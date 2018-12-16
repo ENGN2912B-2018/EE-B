@@ -21,8 +21,8 @@ int main(int argc, char *argv[])
 	FFTAnalyzer FFTtest(1024, 5, reader.getsamplerate());
 	vector<vector<int> > analysis = FFTtest.fileAnalyze(data);
 
-	FeedbackID IDtest;
-	IDtest.findFeedback(analysis);
+	FeedbackID IDtest(analysis);
+	vector<vector<int> > FBProbs = IDtest.findFeedback();
 
 } //http://soundfile.sapp.org/doc/WaveFormat/
 
