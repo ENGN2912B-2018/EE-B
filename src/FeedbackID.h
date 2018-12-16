@@ -11,6 +11,7 @@ class FeedbackID
         FeedbackID(vector<vector<int> > data);
         ~FeedbackID();
         vector<vector<int> > findFeedback();
+	void checkValues();
 	void SNRCheck(int i);
 	void SwellCheck(int i);
 	void HarmonicCheck(int i);

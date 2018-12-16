@@ -17,10 +17,8 @@ FeedbackID::FeedbackID(vector<vector<int> > analysis)
   SNLThresholdL_ = 200;
   SwellThresholdH_ = 2000;
   SwellThresholdL_ = 400;
-  SpecThreshold_ = 400;
+  SpecThreshold_ = SwellThresholdL_;
   SpecMaxWidth_ = 10;
-  probPerWidth_ = .1;
-  SustainThreshold_ = -200;
   probPerSustain_ = 0.25;
   HarmonicRatio_ = 1;
   HarmonicMax_ = 4;
@@ -48,6 +46,47 @@ int findMax(vector<int> data)
 	return *std::max_element(data.begin(),data.end());
 }
 
+void FeedbackID::checkValues(){
+
+  if(SNLThresholdH_ <= 0 || SNLThresholdH_ > MaxProb_)
+    cout << "RANGE ERROR: High SNL Threshold must be between 0 and " << MaxProb_ << endl;
+  if(SNLThresholdL_ <= 0 || SNLThresholdL_ > MaxProb_)
+    cout << "RANGE ERROR: Low SNL Threshold must be between 0 and " << MaxProb_ << endl;
+  if(SNLThresholdL_ >= SNLThresholdH_)
+    cout << "RANGE ERROR: Low SNL Threshold cannot be higher than High SNL Threshold" << endl;
+
+  if(SwellThresholdH_ <= 0 || SwellThresholdH_ > MaxProb_)
+    cout << "RANGE ERROR: High Swell Threshold must be between 0 and " << MaxProb_ << endl;
+  if(SwellThresholdL_ <= 0 || SwellThresholdL_ > MaxProb_)
+    cout << "RANGE ERROR: Low SNL Threshold must be between 0 and " << MaxProb_ << endl;
+  if(SwellThresholdL_ >= SwellThresholdH_)
+    cout << "RANGE ERROR: Low Swell Threshold cannot be higher than High Swell Threshold" << endl;
+
+  if(SpecMaxWidth_ <= 0)
+    cout << "RANGE ERROR: The width of the spectrum check must be greator than 0" << endl;
+
+  if(probPerSustain_ <= 0 || probPerSustain_ >= 1)
+    cout << "RANGE ERROR: The Probabilty addition for sustained frequancy per sample must be bwtween greator than 0 and less than 1" << endl;
+
+  if(HarmonicRatio_ <= 0 || HarmonicRatio_ > 1)
+     cout << "RANGE ERROR: The Ratio between harmonics must be greator than 0 and less than or equal to 1" << endl;
+
+  if(HarmonicMax_ <= 0)
+    cout << "RANGE ERROR: The amount of harmonics to check must be greator than 0" << endl;
+
+  if(SNLWeight_ <= 0 || SNLWeight_ > 1)
+    cout << "RANGE ERROR: The weight of the SNL check must be greator than 0 and less than or equal to 1" << endl;
+  if(SwellWeight_ <= 0 || SwellWeight_ > 1)
+    cout << "RANGE ERROR: The weight of the Swell check must be greator than 0 and less than or equal to 1" << endl;
+  if(HarmonicWeight_ <= 0 || HarmonicWeight_ > 1)
+    cout << "RANGE ERROR: The weight of the Harmonic check must be greator than 0 and less than or equal to 1" << endl;
+  if(SpecWeight_ <= 0 || SpecWeight_ > 1)
+    cout << "RANGE ERROR: The weight of the Specturm Width check must be greator than 0 and less than or equal to 1" << endl;
+  if(SustainWeight_ <= 0 || SustainWeight_ > 1)
+    cout << "RANGE ERROR: The weight of the Sustain check must be greator than 0 and less than or equal to 1" << endl;
+
+}
+
 vector<vector<int> > FeedbackID::findFeedback()
 {
 //This function will return a matrix of probability in fixed point notation, so 0 is to 0.0 as 32767 is to 1.0. Each fixed point corresponds to about 0.0000305 of probability.
@@ -55,6 +94,7 @@ vector<vector<int> > FeedbackID::findFeedback()
 //This function must ONLY use information causally. Future inputs can not impact the feedback probability of the present. 
 //As such, the function will iterate through each sample of data, referencing previous samples and probabilities if needed.
 
+  checkValues();
   if(!data.empty()){
     vector<int> temp (data[0].size());
     int initProb = 0;
@@ -229,7 +269,7 @@ void FeedbackID::SustainCheck(int i)
 void FeedbackID::Average(int i)
 {
   for(unsigned j = 0; j < probs[i].size(); j++){
-    probs[i][j] = (SNLProbs[i][j]*SNLWeight_ + SwellProbs[i][j]*SwellWeight_ + HarmonicProbs[i][j]*HarmonicWeight_+ SpecWidthProbs[i][j]*SpecWeight_ + SustainProbs[i][j]*SustainWeight_) / 5;
+    probs[i][j] = (SNLProbs[i][j]*SNLWeight_ + SwellProbs[i][j]*SwellWeight_ + HarmonicProbs[i][j]*HarmonicWeight_+ SpecWidthProbs[i][j]*SpecWeight_ + SustainProbs[i][j]*SustainWeight_) / (SNLWeight_ + SwellWeight_ + HarmonicWeight_ + SpecWeight_ + SustainWeight_);
   }
 
   if(i == 148){
