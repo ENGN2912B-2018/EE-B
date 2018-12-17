@@ -18,10 +18,10 @@ FileReader::~FileReader()
 
 vector<int> FileReader::read(string fileName)
 {
-    char * ChunkID = new char[4];
+    char * ChunkID = new char[5];
     char * ChunkSize = new char[4];
-    char * Format = new char[4];
-    char * SubChunk1ID = new char[4];
+    char * Format = new char[5];
+    char * SubChunk1ID = new char[5];
     char * SubChunk1Size = new char[4];
     char * AudioFormat = new char[2];
     char * NumChannels = new char[2];
@@ -29,7 +29,7 @@ vector<int> FileReader::read(string fileName)
     char * ByteRate = new char[4];
     char * BlockAlign = new char[2];
     char * BitsPerSample = new char[2];
-    char * SubChunk2ID = new char[4];
+    char * SubChunk2ID = new char[5];
     char * SubChunk2Size = new char[4];
     char * sample1 = new char[4];
 
@@ -37,6 +37,7 @@ vector<int> FileReader::read(string fileName)
 
     typedef unsigned char u8;  // in case char is signed by default on your platform
     typedef char u9;
+    
     ifstream ifstr(fileName.c_str(), ifstream::binary);
 
     //// ERROR CHECKING ----------------------------------------------------
@@ -55,6 +56,7 @@ vector<int> FileReader::read(string fileName)
     
 
     ifstr.read(ChunkID,4);
+    ChunkID[4] = '\0';
     cout << "ChunkID: " << ChunkID << endl;
 
     //// ERROR CHECKING ----------------------------------------------------
@@ -64,12 +66,14 @@ vector<int> FileReader::read(string fileName)
 
     ifstr.read(ChunkSize,4);
     unsigned num = ((u8)ChunkSize[3] << 24) | ((u8)ChunkSize[2] << 16) | ((u8)ChunkSize[1] << 8) | (u8)ChunkSize[0];
-   cout << "ChunkSize: " << num << endl;
+	cout << "ChunkSize: " << num << endl;
 
     ifstr.read(Format,4);
+    Format[4] = '\0';
     cout << "Format: " << Format << endl;
 
     ifstr.read(SubChunk1ID,4);
+    SubChunk1ID[4] = '\0';
     cout << "SubChunkID: " << SubChunk1ID << endl;
 
     //// ERROR CHECKING ----------------------------------------------------
@@ -121,6 +125,7 @@ vector<int> FileReader::read(string fileName)
     cout << "BitsPerSample: " << num << endl;
 
     ifstr.read(SubChunk2ID,4);
+    SubChunk2ID[4] = '\0';
     cout << "SubChunk2ID: " << SubChunk2ID << endl;
 
     //// ERROR CHECKING ----------------------------------------------------
