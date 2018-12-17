@@ -15,7 +15,6 @@
 #include "ui_analyzerwindow.h"
 #include <QFileDialog>
 #include <QMessageBox>
-#include "chartview.h"
 
 
 AnalyzerWindow::AnalyzerWindow(QWidget *parent) : QMainWindow(parent),

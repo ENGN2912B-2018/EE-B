@@ -13,7 +13,6 @@
 #include <typeinfo>
 #include "analyzerwindow.h"
 #include <QApplication>
-#include "chartview.h"
 
 int main(int argc, char *argv[])
 {
