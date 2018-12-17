@@ -305,4 +305,3 @@ void FeedbackID::setSpecWeight(int value){
 void FeedbackID::setSustainWeight(int value){
   SustainWeight_ = value;
 }
-
