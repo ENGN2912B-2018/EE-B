@@ -2,10 +2,7 @@
 #define ANALYZERWINDOW_H
 
 #include <QMainWindow>
-#include <QScatterSeries>
-#include <QtCharts/QChartView>
-#include <QtCharts/QChart>
-#include <QtCharts>
+
 
 
 namespace Ui {
@@ -33,9 +30,10 @@ private slots:
 private:
     Ui::AnalyzerWindow *ui;
     QString filename;
+/*
     QChart *chart;
     QChartView *cv;
-
+*/
 };
 
 #endif // ANALYZERWINDOW_H

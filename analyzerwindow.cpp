@@ -21,8 +21,10 @@
 AnalyzerWindow::AnalyzerWindow(QWidget *parent) : QMainWindow(parent),
     ui(new Ui::AnalyzerWindow) {
     ui->setupUi(this);
+/*
     chart = new QChart();
     cv = new QChartView(chart);
+*/
 }
 
 AnalyzerWindow::~AnalyzerWindow(){
@@ -65,11 +67,12 @@ ui->progressBar->setValue(40);
 
 ui->progressBar->setValue(70);
 
-    AnalyzerWindow::PlotSpectrum(analysis, FBProbs);
+// Call function to plot data
 
 ui->progressBar->setValue(100);
 }
 
+/*
 void AnalyzerWindow::PlotSpectrum(std::vector<std::vector<int> > a, std::vector<std::vector<int> > p)
 {
 
@@ -128,6 +131,7 @@ void AnalyzerWindow::PlotSpectrum(std::vector<std::vector<int> > a, std::vector<
 
 
 }
+*/
 
 void AnalyzerWindow::on_pushBrowse_clicked()
 {

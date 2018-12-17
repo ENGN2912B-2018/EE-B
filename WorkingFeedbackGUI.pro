@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui charts
+QT       += core gui
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -31,7 +31,6 @@ SOURCES += \
     src/FileReader.cpp \
     kiss_fft130/tools/kiss_fftr.c \
     kiss_fft130/kiss_fft.c \
-    chartview.cpp
 
 HEADERS += \
         analyzerwindow.h \
@@ -45,7 +44,6 @@ HEADERS += \
     src/FeedbackID.h \
     src/FFTAnalyzer.h \
     src/FileReader.h \
-    chartview.h
 
 FORMS += \
         analyzerwindow.ui
