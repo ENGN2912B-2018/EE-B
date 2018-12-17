@@ -19,7 +19,13 @@ class FeedbackID
 	void SpecWidthCheck2(int i);
 	void SustainCheck(int i);
 	void Average(int i);
-  
+
+	void setSNLWeight(int value);
+	void setSwellWeight(int value);
+	void setHarmonicWeight(int value);
+	void setSpecWeight(int value);
+	void setSustainWeight(int value);
+		
     protected:
 
     private:

@@ -285,3 +285,24 @@ void FeedbackID::Average(int i)
     }
   }  
 }
+
+void FeedbackID::setSNLWeight(int value){
+  SNLWeight_ = value;
+}
+
+void FeedbackID::setSwellWeight(int value){
+  SwellWeight_ = value;
+}
+
+void FeedbackID::setHarmonicWeight(int value){
+  HarmonicWeight_ = value;
+}
+
+void FeedbackID::setSpecWeight(int value){
+  SpecWeight_ = value;
+}
+
+void FeedbackID::setSustainWeight(int value){
+  SustainWeight_ = value;
+}
+
