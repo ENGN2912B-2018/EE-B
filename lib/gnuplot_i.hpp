@@ -552,8 +552,7 @@ class Gnuplot
 
     /// plot rgbimage
     Gnuplot& plot_rgbimage(const unsigned char *ucRPicBuf,
-                           const unsigned char *ucGPicBuf,
-                           const unsigned char *ucBPicBuf,
+                           const unsigned char *ucGBPicBuf,
                            const unsigned int iWidth,
                            const unsigned int iHeight,
                            const std::string &title = "");
@@ -1646,13 +1645,14 @@ Gnuplot& Gnuplot::plot_image(const unsigned char * ucPicBuf,
 /// *  Mustered up by Alex Cannan, 12/18/18
 //
 Gnuplot& Gnuplot::plot_rgbimage(const unsigned char * ucRPicBuf,
-                                const unsigned char * ucGPicBuf,
-                                const unsigned char * ucBPicBuf,
+                                const unsigned char * ucGBPicBuf,
                                 const unsigned int iWidth,
                                 const unsigned int iHeight,
                                 const std::string &title)
 {
     std::ofstream tmp;
+    std::ofstream output;
+    output.open("rgb.csv");
     std::string name = create_tmpfile(tmp);
     if (name == "")
         return *this;
@@ -1667,11 +1667,16 @@ Gnuplot& Gnuplot::plot_rgbimage(const unsigned char * ucRPicBuf,
         {
             tmp << iColumn << " " << iRow  << " "
                 << static_cast<float>(ucRPicBuf[iIndex++]) << " "
-                << static_cast<float>(ucGPicBuf[iIndex++]) << " "
-                << static_cast<float>(ucBPicBuf[iIndex++]) << std::endl;
+                << static_cast<float>(ucGBPicBuf[iIndex++]) << " "
+                << static_cast<float>(ucGBPicBuf[iIndex++]) << std::endl;
+            output << iColumn << ", " << iRow  << ", "
+                << static_cast<float>(ucRPicBuf[iIndex++]) << ", "
+                << static_cast<float>(ucGBPicBuf[iIndex++]) << ", "
+                << static_cast<float>(ucGBPicBuf[iIndex++]) << std::endl;
         }
     }
 
+    output.close();
     tmp.flush();
     tmp.close();
 

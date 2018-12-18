@@ -73,13 +73,13 @@ ui->progressBar->setValue(20);
 
 //Take FFT Periodically
 
-    int guiAnalysisPeriod = ui->analysisPeriodSpinner->value();
+    unsigned guiAnalysisPeriod = ui->analysisPeriodSpinner->value();
     FFTAnalyzer FFTtest(1024, guiAnalysisPeriod, reader.getsamplerate());
     vector<vector<int> > analysis = FFTtest.fileAnalyze(data);
 
 //For purposes of plotting only:
-    FFTAnalyzer FFTdata(1024,1,reader.getsamplerate());
-    vector<vector<int> > m2plot = FFTdata.fileAnalyze(data);
+    //FFTAnalyzer FFTdata(1024,1,reader.getsamplerate());
+    //vector<vector<int> > m2plot = FFTdata.fileAnalyze(data);
 
 ui->progressBar->setValue(40);
 
@@ -95,33 +95,48 @@ ui->progressBar->setValue(40);
 
 ui->progressBar->setValue(70);
 
+//output analysis matricies to analyze
+std::ofstream m2plot;
+m2plot.open("fftmatrix.csv");
+for (int i = 0; i < analysis.size(); i++) {
+    for (int j = 0; j < analysis[1].size()-1; j++){
+        m2plot << analysis[i][j] << ", ";
+    }
+    m2plot << analysis[i][1023] << std::endl;
+}
+
+try {
     unsigned int iW = IDtest.iWidth;
-    unsigned int iH = IDtest.iHeight;
-    unsigned len = 3*iW*iH;
+    unsigned int iH = 160;
+    unsigned long len = iW*iH;
     unsigned char mag = 0;
     unsigned char fbmag = 0;
     unsigned char ucRPicBuf[len];
-    unsigned char ucGPicBuf[len];
-    unsigned char ucBPicBuf[len];
+    unsigned char ucGBPicBuf[len];
     // encode matrix data into rgb char arrays
-    for(unsigned iIndex = 0; iIndex < 200; iIndex++)
+    for(unsigned long iIndex = 0; iIndex < len; iIndex++)
     {
-        mag = analysis[iIndex][iIndex/iW+1]/129;
-        fbmag = FBProbs[iIndex][iIndex/iW+1]/129;
+        std::cout << "Trying  mag[" << iIndex%iW << "][" <<iIndex/iW+1 << "]" << std::endl;
+        mag = analysis[iIndex%iW][iIndex/iW+1]/129;
+        std::cout << "Trying fbmag[" << (iIndex/guiAnalysisPeriod)%iW << "][" << iIndex/iW+1 << "]" << std::endl;
+        fbmag = FBProbs[iIndex%iW][iIndex/iW+1]/129;
         ucRPicBuf[iIndex] = mag;
         if (fbmag < mag) {
-            ucGPicBuf[iIndex] = mag - fbmag;
-            ucBPicBuf[iIndex] = mag - fbmag;
+            ucGBPicBuf[iIndex] = mag - fbmag;
         } else {
-            ucGPicBuf[iIndex] = 0;
-            ucBPicBuf[iIndex] = 0;
+            ucGBPicBuf[iIndex] = 0;
         }
+        std::cout << iIndex << "/" << len << std::endl;
+        QCoreApplication::processEvents();
     }
     Gnuplot g9;
     g9.set_xrange(0,iW).set_yrange(0,iH).set_cbrange(0,255);
     //g9.cmd("set palette color");
-    g9.plot_rgbimage(ucRPicBuf,ucGPicBuf,ucBPicBuf,iW,iH,"Spectrum");
-
+    g9.plot_rgbimage(ucRPicBuf,ucGBPicBuf,iW,iH,"Spectrum");
+}
+catch (GnuplotException ge) {
+    std::cout << ge.what() << endl;
+}
 
 
 

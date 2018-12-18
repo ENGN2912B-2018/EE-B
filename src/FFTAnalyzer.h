@@ -1,8 +1,10 @@
 #ifndef FFTANALYZER_H
 #define FFTANALYZER_H
+#define PI 3.14159265358979
 #include <iostream>
 #include <vector>
 #include <iomanip>
+#include <math.h>
 
 using namespace std;
 
@@ -51,6 +53,11 @@ std::vector<std::vector<int> > fileAnalyze(std::vector<int> data){
 				}
 			}
 			//cout << "about to call fftr... " << endl;
+//TODO: Apply window to input fft here!
+            for (int i = 0; i < vecSize; i++) {
+                double multiplier = 0.5 * (1 - cos(2*PI*i/(vecSize-1)));
+                inputfft[i] = multiplier * inputfft[i];
+            }
 			kiss_fftr(cfg, inputfft, outputfft);
 			//cout << "initializing output vector to be pushed into matrix" << endl;
 			vector<int> temp;
