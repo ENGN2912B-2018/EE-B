@@ -22,6 +22,11 @@ DEFINES += QT_DEPRECATED_WARNINGS
 # You can also select to disable deprecated APIs only up to a certain version of Qt.
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
+win32 {
+    INCLUDEPATH += C:/boost_1_69_0/PREFIX/include/boost-1_69
+    LIBS += "-LC:\boost_1_69_0\PREFIX\lib" \
+}
+
 CONFIG += c++11
 
 SOURCES += \
@@ -44,6 +49,8 @@ HEADERS += \
     src/FeedbackID.h \
     src/FFTAnalyzer.h \
     src/FileReader.h \
+    lib/gnuplot-iostream.h \
+    lib/gnuplot_i.hpp
 
 FORMS += \
         analyzerwindow.ui

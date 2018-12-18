@@ -15,6 +15,7 @@
 #include "ui_analyzerwindow.h"
 #include <QFileDialog>
 #include <QMessageBox>
+#include "lib/gnuplot_i.hpp"
 
 
 AnalyzerWindow::AnalyzerWindow(QWidget *parent) : QMainWindow(parent),
@@ -89,7 +90,26 @@ ui->progressBar->setValue(40);
 
 ui->progressBar->setValue(70);
 
-// Call function to plot data
+    Gnuplot g9;
+
+    const int iWidth  = 6;
+    const int iHeight = 6;
+
+    g9.set_xrange(0,iWidth).set_yrange(0,iHeight).set_cbrange(0,255);
+    g9.cmd("set palette gray");
+
+    unsigned char ucPicBuf[iWidth*iHeight];
+    // generate a greyscale image
+    for(int iIndex = 0; iIndex < iHeight*iWidth; iIndex++)
+    {
+        ucPicBuf[iIndex] = iIndex%255;
+    }
+    std::cout << "Hi There!" << std::endl;
+    g9.plot_image(ucPicBuf,iWidth,iHeight,"greyscale");
+
+    g9.set_pointsize(0.6).unset_legend().plot_slope(0.8,20);
+
+
 
 ui->progressBar->setValue(100);
 }
