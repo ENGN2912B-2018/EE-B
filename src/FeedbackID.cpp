@@ -22,14 +22,14 @@ FeedbackID::FeedbackID(vector<vector<int> > analysis)
   // A frequency with amplitude below the SNL Low threshold has probability of 0.
   // A frequency with amplitude above the SNL High theshold has probability of 1.
   // A frequency with amplitude between the thresholds has probability between 0 and 1 as a function of how close the amplitude is to the high threshold.
-  SNLThresholdH_ = 800;
+  SNLThresholdH_ = 100;
   SNLThresholdL_ = 200;
 
   // A frequency with amplitude that is growing below the Swell Low threshold rate have a probability of 0.
   // A frequency with amplitude that is growing above the Swell Low threshold rate have a probability of 1.
   // A frequency with amplitude between the thresholds has probability between 0 and 1 as a function of how close the rate of change is to the high threshold.
-  SwellThresholdH_ = 2000;
-  SwellThresholdL_ = 400;
+  SwellThresholdH_ = 1;
+  SwellThresholdL_ = 0;
 
   // The Spectrum threshold is used to check the frequncies around the growing frequncy to check if they are growing at the same rate. This should be set the SwellThresholdL_ for best results.
   SpecThreshold_ = SwellThresholdL_;
@@ -38,20 +38,20 @@ FeedbackID::FeedbackID(vector<vector<int> > analysis)
   SpecMaxWidth_ = 10;
 
   // The percentage of probabilty that is added each time a frequency continues to act like feedback. For example,when set to 25, it will take 4 samples for the probabilty to become 1.
-  probPerSustain_ = 25;
+  probPerSustain_ = 33;
 
   // The ratio of fundamental frequency amplitude to harmonic frequency amplitude. Used to check if the offending frequency has harmonics.
   HarmonicRatio_ = 1;
 
   // The amount of harmonics to check.
-  HarmonicMax_ = 4;
+  HarmonicMax_ = 3;
 
   // Weights of each of the checks, from 1 to 100, where 100 reprensents 100%.
-  SNLWeight_ = 100;
+  SNLWeight_ = 0;
   SwellWeight_ = 100;
-  HarmonicWeight_ = 100;
-  SpecWeight_ = 100;
-  SustainWeight_ = 100;
+  HarmonicWeight_ = 0;
+  SpecWeight_ = 0;
+  SustainWeight_ = 0;
 }
 
 FeedbackID::~FeedbackID() {}
@@ -159,10 +159,12 @@ vector<vector<int> > FeedbackID::findFeedback()
   return probs;
 }
 
-
+/**
+   The SNR check assigns probability based on the magnitude of the frequency component.
+ **/
 void FeedbackID::SNRCheck(int i)
 {
-  int spacing = (SNLThresholdH_ - SNLThresholdL_) / MaxProb_;
+  int spacing = MaxProb_ / (SNLThresholdH_ - SNLThresholdL_);
   for (unsigned j = 0; j < data[i].size(); j++){
     if(data[i][j] >= SNLThresholdL_){
       if(data[i][j] >= SNLThresholdH_)
@@ -175,6 +177,9 @@ void FeedbackID::SNRCheck(int i)
   }
 }
 
+/**
+   The SNR check assigns probability based on the magnitude of the frequency component.
+ **/
 void FeedbackID::SwellCheck(int i)
 {
   int spacing = MaxProb_ / (SwellThresholdH_ - SwellThresholdL_);
@@ -306,7 +311,8 @@ void FeedbackID::SustainCheck(int i)
 void FeedbackID::Average(int i)
 {
   for(unsigned j = 0; j < probs[i].size(); j++){
-    probs[i][j] = (SNLProbs[i][j]*((int)(SNLWeight_/100)) + SwellProbs[i][j]*((int)(SwellWeight_/100)) + HarmonicProbs[i][j]*((int)(HarmonicWeight_/100))+ SpecWidthProbs[i][j]*((int)(SpecWeight_/100)) + SustainProbs[i][j]*((int)(SustainWeight_/100))) /((int) ((SNLWeight_ + SwellWeight_ + HarmonicWeight_ + SpecWeight_ + SustainWeight_)/100));
+    //probs[i][j] = SNLProbs[i][j]*(SNLWeight_/100) + SwellProbs[i][j]*(SwellWeight_/100) + HarmonicProbs[i][j]*(HarmonicWeight_/100)+ SpecWidthProbs[i][j]*(SpecWeight_/100) + SustainProbs[i][j]*(SustainWeight_/100) /   (((SNLWeight_ + SwellWeight_ + HarmonicWeight_ + SpecWeight_ + SustainWeight_)/100.0));
+    probs[i][j] = SwellProbs[i][j];
   }
 
   if(i == 148){
@@ -341,5 +347,21 @@ void FeedbackID::setSpecWeight(int value){
 
 void FeedbackID::setSustainWeight(int value){
   SustainWeight_ = value;
+}
+
+vector<vector<double> > FeedbackID::toDouble(){
+  vector<double> temp (data[0].size());
+  double initProb = 0.0;
+  fill(temp.begin(),temp.end(),initProb);
+  for (unsigned i = 0; i < probs.size(); i++){
+    probsd.push_back(temp);
+    for(unsigned j = 0; j < probs[i].size(); j++){
+      probsd[i][j] = probs[i][j] / 32767.0;
+      if(i == 41){
+	cout << probsd[i][j] << endl;
+      }
+    }
+  }
+  return probsd;
 }
 

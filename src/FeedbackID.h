@@ -19,6 +19,7 @@ class FeedbackID
 	void SpecWidthCheck2(int i);
 	void SustainCheck(int i);
 	void Average(int i);
+	vector<vector<double> > toDouble();
 
 	void setSNLWeight(int value);
 	void setSwellWeight(int value);
@@ -30,7 +31,7 @@ class FeedbackID
 
     private:
 	vector<vector<int> > data;
-
+	vector<vector<double> > probsd;
 	vector<vector<int> > probs;
 	vector<vector<int> > SNLProbs;
 	vector<vector<int> > SwellProbs;
