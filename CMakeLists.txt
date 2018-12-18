@@ -18,7 +18,6 @@ if(Boost_FOUND)
   add_subdirectory(src)
 
   add_executable(RemoveFeedback main.cpp)
-  target_include_directories(RemoveFeedback PUBLIC lib)
   target_link_libraries(RemoveFeedback fftLibrary sourceFiles ${Boost_LIBRARIES})
 endif()
 #add_custom_command(

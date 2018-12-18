@@ -22,14 +22,14 @@ FeedbackID::FeedbackID(vector<vector<int> > analysis)
   // A frequency with amplitude below the SNL Low threshold has probability of 0.
   // A frequency with amplitude above the SNL High theshold has probability of 1.
   // A frequency with amplitude between the thresholds has probability between 0 and 1 as a function of how close the amplitude is to the high threshold.
-  SNLThresholdH_ = 100;
+  SNLThresholdH_ = 10000;
   SNLThresholdL_ = 200;
 
   // A frequency with amplitude that is growing below the Swell Low threshold rate have a probability of 0.
   // A frequency with amplitude that is growing above the Swell Low threshold rate have a probability of 1.
   // A frequency with amplitude between the thresholds has probability between 0 and 1 as a function of how close the rate of change is to the high threshold.
-  SwellThresholdH_ = 1;
-  SwellThresholdL_ = 0;
+  SwellThresholdH_ = 10000;
+  SwellThresholdL_ = 50;
 
   // The Spectrum threshold is used to check the frequncies around the growing frequncy to check if they are growing at the same rate. This should be set the SwellThresholdL_ for best results.
   SpecThreshold_ = SwellThresholdL_;
@@ -41,17 +41,17 @@ FeedbackID::FeedbackID(vector<vector<int> > analysis)
   probPerSustain_ = 33;
 
   // The ratio of fundamental frequency amplitude to harmonic frequency amplitude. Used to check if the offending frequency has harmonics.
-  HarmonicRatio_ = 1;
+  HarmonicRatio_ = 0.1;
 
   // The amount of harmonics to check.
   HarmonicMax_ = 3;
 
   // Weights of each of the checks, from 1 to 100, where 100 reprensents 100%.
-  SNLWeight_ = 0;
+  SNLWeight_ = 100;
   SwellWeight_ = 100;
-  HarmonicWeight_ = 0;
-  SpecWeight_ = 0;
-  SustainWeight_ = 0;
+  HarmonicWeight_ = 100;
+  SpecWeight_ = 100;
+  SustainWeight_ = 100;
 }
 
 FeedbackID::~FeedbackID() {}
@@ -202,13 +202,13 @@ void FeedbackID::HarmonicCheck(int i)
   int harmonicStep = MaxProb_ / HarmonicMax_;
   for (unsigned j = 0; j < data[i].size(); j++){
     unsigned count = 0;
-    if((SwellProbs[i][j] >= 1 || SNLProbs[i][j] >= 1)){
+    if((SwellProbs[i][j] >= 4000 || SNLProbs[i][j] >= 4000)){
       bool loopFlag = true;
       unsigned index = j;
-      while(loopFlag && index*2 < data[i].size()){
-	if(data[i][index*2] >= data[i][index]*HarmonicRatio_){
+      while(loopFlag && index + j < data[i].size()){
+	if(SwellProbs[i][index+j] >= SwellProbs[i][index]){
 	  count++;
-	  index = index*2;
+	  index = index+j;
 	}
 	else{
 	  loopFlag = false;
@@ -310,19 +310,25 @@ void FeedbackID::SustainCheck(int i)
 
 void FeedbackID::Average(int i)
 {
+  double HarmonicVar = HarmonicWeight_;
   for(unsigned j = 0; j < probs[i].size(); j++){
-    //probs[i][j] = SNLProbs[i][j]*(SNLWeight_/100) + SwellProbs[i][j]*(SwellWeight_/100) + HarmonicProbs[i][j]*(HarmonicWeight_/100)+ SpecWidthProbs[i][j]*(SpecWeight_/100) + SustainProbs[i][j]*(SustainWeight_/100) /   (((SNLWeight_ + SwellWeight_ + HarmonicWeight_ + SpecWeight_ + SustainWeight_)/100.0));
-    probs[i][j] = SwellProbs[i][j];
+
+    if(j >= probs[i].size()/2){
+      HarmonicVar = 0;
+     
+    }
+    probs[i][j] = (SNLProbs[i][j]*((SNLWeight_/100)) + SwellProbs[i][j]*((SwellWeight_/100)) + HarmonicProbs[i][j]*((HarmonicWeight_/100.0))+ SpecWidthProbs[i][j]*((SpecWeight_/100)) + SustainProbs[i][j]*((SustainWeight_/100))) / (((SNLWeight_ + SwellWeight_ + HarmonicWeight_ + SpecWeight_ + SustainWeight_)/100)*1.0);
+    //probs[i][j] = SwellProbs[i][j];
   }
 
-  if(i == 148){
+  if(i == 60){
     for(unsigned j = 0; j < probs[i].size(); j++){
       //cout << "SNLCHECK j = " << j << " Data: " << data[i][j] << " Prob:  " << SNLProbs[i][j]*((int)(SNLWeight_/100)) << endl;
       //cout << "SWELLCHECK j = " << j << " Data i-1: " << data[i-1][j] << " Data i: " << data[i][j] << " Prob: " << SwellProbs[i][j] << endl;
       //cout << "SWCHECK j = " << j << " Data i-1: " << data[i-1][j] << " Data i: " << data[i][j] <<  " Prob:  " << SpecWidthProbs[i][j] << endl;
       //cout << "SUSTAINCHECK j = " << j << " Data i-1: " << data[i-1][j] << " Data i: " << data[i][j] <<  " Prob:  " << SustainProbs[i][j] << endl;
       if(j*2 <= data[i].size()){
-	//cout << "HarmonicCheck j = " << j << " Data i,j: " << data[i][j] << " Data i,j*2: " << data[i][j*2] <<  " Prob:  " << HarmonicProbs[i][j] << endl;
+	cout << "HarmonicCheck j = " << j << " Data i,j: " << data[i][j] << " Data i,j*2: " << data[i][j*2] <<  " Prob:  " << HarmonicProbs[i][j] << endl;
       }
       //cout << "Probs j = " << j << " Data: " << data[i][j] << " Prob:  " << probs[i][j] << endl;
     }
