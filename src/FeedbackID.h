@@ -25,6 +25,9 @@ class FeedbackID
     void setHarmonicWeight(int value);
     void setSpecWeight(int value);
     void setSustainWeight(int value);
+
+    int iWidth;
+    int iHeight;
   
     protected:
 
@@ -57,6 +60,8 @@ class FeedbackID
 	double HarmonicWeight_;
 	double SpecWeight_;
 	double SustainWeight_;
+
+
 };
 
 #endif // FEEDBACKID_H

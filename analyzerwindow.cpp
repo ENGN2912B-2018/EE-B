@@ -73,8 +73,13 @@ ui->progressBar->setValue(20);
 
 //Take FFT Periodically
 
-    FFTAnalyzer FFTtest(1024, ui->analysisPeriodSpinner->value(), reader.getsamplerate());
+    int guiAnalysisPeriod = ui->analysisPeriodSpinner->value();
+    FFTAnalyzer FFTtest(1024, guiAnalysisPeriod, reader.getsamplerate());
     vector<vector<int> > analysis = FFTtest.fileAnalyze(data);
+
+//For purposes of plotting only:
+    FFTAnalyzer FFTdata(1024,1,reader.getsamplerate());
+    vector<vector<int> > m2plot = FFTdata.fileAnalyze(data);
 
 ui->progressBar->setValue(40);
 
@@ -90,24 +95,33 @@ ui->progressBar->setValue(40);
 
 ui->progressBar->setValue(70);
 
-    Gnuplot g9;
-
-    const int iWidth  = 6;
-    const int iHeight = 6;
-
-    g9.set_xrange(0,iWidth).set_yrange(0,iHeight).set_cbrange(0,255);
-    g9.cmd("set palette gray");
-
-    unsigned char ucPicBuf[iWidth*iHeight];
-    // generate a greyscale image
-    for(int iIndex = 0; iIndex < iHeight*iWidth; iIndex++)
+    unsigned int iW = IDtest.iWidth;
+    unsigned int iH = IDtest.iHeight;
+    unsigned len = 3*iW*iH;
+    unsigned char mag = 0;
+    unsigned char fbmag = 0;
+    unsigned char ucRPicBuf[len];
+    unsigned char ucGPicBuf[len];
+    unsigned char ucBPicBuf[len];
+    // encode matrix data into rgb char arrays
+    for(unsigned iIndex = 0; iIndex < 200; iIndex++)
     {
-        ucPicBuf[iIndex] = iIndex%255;
+        mag = analysis[iIndex][iIndex/iW+1]/129;
+        fbmag = FBProbs[iIndex][iIndex/iW+1]/129;
+        ucRPicBuf[iIndex] = mag;
+        if (fbmag < mag) {
+            ucGPicBuf[iIndex] = mag - fbmag;
+            ucBPicBuf[iIndex] = mag - fbmag;
+        } else {
+            ucGPicBuf[iIndex] = 0;
+            ucBPicBuf[iIndex] = 0;
+        }
     }
-    std::cout << "Hi There!" << std::endl;
-    g9.plot_image(ucPicBuf,iWidth,iHeight,"greyscale");
+    Gnuplot g9;
+    g9.set_xrange(0,iW).set_yrange(0,iH).set_cbrange(0,255);
+    //g9.cmd("set palette color");
+    g9.plot_rgbimage(ucRPicBuf,ucGPicBuf,ucBPicBuf,iW,iH,"Spectrum");
 
-    g9.set_pointsize(0.6).unset_legend().plot_slope(0.8,20);
 
 
 

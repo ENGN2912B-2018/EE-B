@@ -11,6 +11,8 @@ using namespace std;
 FeedbackID::FeedbackID(vector<vector<int> > analysis)
 {
   data = analysis;
+  iWidth = analysis.size();
+  iHeight = 512;
   MaxProb_ = 32767;
 
   SNLThresholdH_ = 800;
