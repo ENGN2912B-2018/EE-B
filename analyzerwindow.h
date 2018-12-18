@@ -27,6 +27,18 @@ private slots:
 
     void on_pushBrowse_clicked();
 
+    void on_analysisperButton_clicked();
+
+    void on_sustainButton_clicked();
+
+    void on_specwidthButton_clicked();
+
+    void on_harmonicWeight_clicked();
+
+    void on_swellButton_clicked();
+
+    void on_snrButton_clicked();
+
 private:
     Ui::AnalyzerWindow *ui;
     QString filename;

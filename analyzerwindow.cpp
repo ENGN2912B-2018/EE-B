@@ -46,6 +46,30 @@ ui->progressBar->setValue(20);
 
     vector<int> data = reader.read(utf8_text);
 
+//Check for errors in file reading
+    if (data.size() < 10 && data.size() > 0) { // returned error vector if size less than 10
+        QString errors = "";
+        for (int i = 0; i < data.size(); i++) {
+            if (data[i] == 1) {errors += "ec1: File not found\n";}
+            if (data[i] == 2) {errors += "ec2: File too small to be .wav\n";}
+            if (data[i] == 3) {errors += "ec3: Header mismatch 1. May not be .wav file\n";}
+            if (data[i] == 4) {errors += "ec4: Header mismatch 2. May not be .wav file\n";}
+            if (data[i] == 5) {errors += "ec5: File must be uncompressed\n";}
+            if (data[i] == 6) {errors += "ec6: File must be mono\n";}
+            if (data[i] == 7) {errors += "ec7: Header mismatch 3. May not be .wav file\n";}
+        }
+        errors += "\nAborting process.";
+        QMessageBox Error;
+        Error.setText(errors);
+        Error.setIcon(QMessageBox::Warning);
+        Error.setWindowTitle("Error");
+        Error.exec();
+        ui->progressBar->setValue(0);
+
+        return;
+    }
+    if (data.size() == 0) {std::cout << "Returned empty vector. What's up with that?" << std::endl; return;}
+
 //Take FFT Periodically
 
     FFTAnalyzer FFTtest(1024, ui->analysisPeriodSpinner->value(), reader.getsamplerate());
@@ -60,7 +84,6 @@ ui->progressBar->setValue(40);
     IDtest.setHarmonicWeight(ui->sliderHarmonics->value());
     IDtest.setSpecWeight(ui->sliderSpecWidth->value());
     IDtest.setSustainWeight(ui->sliderSustain->value());
-    std::cout << "Weights are set!" << std::endl;
 
     vector<vector<int> > FBProbs = IDtest.findFeedback();
 
@@ -136,4 +159,58 @@ void AnalyzerWindow::on_pushBrowse_clicked()
 {
     filename = QFileDialog::getOpenFileName(this,tr("Open file"),"..","Wav files (*.wav)");
     ui->filenameEdit->setText(filename);
+}
+
+void AnalyzerWindow::on_analysisperButton_clicked()
+{
+    QMessageBox info;
+    info.setText("The analysis period determines how often the signal is sampled. Note that the signal is split into 1024 point buffers already. An analysis period of 5 indicates that only every 5th buffer is analyzed; An analysis period of 3 means every 3rd buffer; and so on.");
+    info.setIcon(QMessageBox::Question);
+    info.setWindowTitle("Analysis Period Information");
+    info.exec();
+}
+
+void AnalyzerWindow::on_sustainButton_clicked()
+{
+    QMessageBox info;
+    info.setText("The Sustain check generates probabilities based on how frequencies are sustained over time. It is meant to catch frequencies that are already feeding back significantly and are saturated.");
+    info.setIcon(QMessageBox::Question);
+    info.setWindowTitle("Sustain Check Information");
+    info.exec();
+}
+
+void AnalyzerWindow::on_specwidthButton_clicked()
+{
+    QMessageBox info;
+    info.setText("This check looks at neighboring frequencies to see if they are also increasing. The more neighboring frequencies that are increasing, the higher probability that this frequency is also feedback.");
+    info.setIcon(QMessageBox::Question);
+    info.setWindowTitle("Spectral Width Check Information");
+    info.exec();
+}
+
+void AnalyzerWindow::on_harmonicWeight_clicked()
+{
+    QMessageBox info;
+    info.setText("The Harmonic check looks at the harmonics of frequencies that are determined to be feeding back. Budding feedback will not have harmonic content, so this allows us to distinguish between a musical swell and budding feedback.");
+    info.setIcon(QMessageBox::Question);
+    info.setWindowTitle("Harmonic Check Information");
+    info.exec();
+}
+
+void AnalyzerWindow::on_swellButton_clicked()
+{
+    QMessageBox info;
+    info.setText("This check increases the probability of feedback as the magnitude of its frequency band increases. In other words, if the band is getting louder, its more probably feedback.");
+    info.setIcon(QMessageBox::Question);
+    info.setWindowTitle("Swell Check Information");
+    info.exec();
+}
+
+void AnalyzerWindow::on_snrButton_clicked()
+{
+    QMessageBox info;
+    info.setText("This check sets the feedback probability of frequency bands below a certain threshold (the noise floor) to zero. At the same time, if a frequency band has an incredibly high peak, it sets the probability as 1.");
+    info.setIcon(QMessageBox::Question);
+    info.setWindowTitle("SNR Check Information");
+    info.exec();
 }
