@@ -15,8 +15,11 @@ FeedbackID::FeedbackID(vector<vector<int> > analysis)
 {
   // FFT Data outputted by the FFTAnalyzer class
   data = analysis;
+  iWidth = analysis.size();
+  iHeight = analysis[1].size()/2;
 
   // Probability is broken up between 0 and MaxProb, with MaxProb representing 1.
+
   MaxProb_ = 32767;
 
   // A frequency with amplitude below the SNL Low threshold has probability of 0.
@@ -342,4 +345,3 @@ void FeedbackID::setSpecWeight(int value){
 void FeedbackID::setSustainWeight(int value){
   SustainWeight_ = value;
 }
-

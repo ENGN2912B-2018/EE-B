@@ -20,12 +20,15 @@ class FeedbackID
 	void SustainCheck(int i);
 	void Average(int i);
 
-	void setSNLWeight(int value);
-	void setSwellWeight(int value);
-	void setHarmonicWeight(int value);
-	void setSpecWeight(int value);
-	void setSustainWeight(int value);
-		
+    void setSNLWeight(int value);
+    void setSwellWeight(int value);
+    void setHarmonicWeight(int value);
+    void setSpecWeight(int value);
+    void setSustainWeight(int value);
+
+    int iWidth;
+    int iHeight;
+  
     protected:
 
     private:
@@ -57,6 +60,8 @@ class FeedbackID
 	double HarmonicWeight_;
 	double SpecWeight_;
 	double SustainWeight_;
+
+
 };
 
 #endif // FEEDBACKID_H
