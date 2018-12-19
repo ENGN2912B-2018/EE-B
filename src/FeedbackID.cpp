@@ -25,14 +25,14 @@ FeedbackID::FeedbackID(vector<vector<int> > analysis)
   // A frequency with amplitude below the SNL Low threshold has probability of 0.
   // A frequency with amplitude above the SNL High theshold has probability of 1.
   // A frequency with amplitude between the thresholds has probability between 0 and 1 as a function of how close the amplitude is to the high threshold.
-  SNLThresholdH_ = 800;
-  SNLThresholdL_ = 200;
+  SNLThresholdH_ = 10000;
+  SNLThresholdL_ = 50;
 
   // A frequency with amplitude that is growing below the Swell Low threshold rate have a probability of 0.
   // A frequency with amplitude that is growing above the Swell Low threshold rate have a probability of 1.
   // A frequency with amplitude between the thresholds has probability between 0 and 1 as a function of how close the rate of change is to the high threshold.
-  SwellThresholdH_ = 2000;
-  SwellThresholdL_ = 400;
+  SwellThresholdH_ = 5000;
+  SwellThresholdL_ = 50;
 
   // The Spectrum threshold is used to check the frequncies around the growing frequncy to check if they are growing at the same rate. This should be set the SwellThresholdL_ for best results.
   SpecThreshold_ = SwellThresholdL_;
@@ -165,7 +165,7 @@ vector<vector<int> > FeedbackID::findFeedback()
 
 void FeedbackID::SNRCheck(int i)
 {
-  int spacing = (SNLThresholdH_ - SNLThresholdL_) / MaxProb_;
+  int spacing = MaxProb_ / (SNLThresholdH_ - SNLThresholdL_);
   for (unsigned j = 0; j < data[i].size(); j++){
     if(data[i][j] >= SNLThresholdL_){
       if(data[i][j] >= SNLThresholdH_)
@@ -200,13 +200,13 @@ void FeedbackID::HarmonicCheck(int i)
   int harmonicStep = MaxProb_ / HarmonicMax_;
   for (unsigned j = 0; j < data[i].size(); j++){
     unsigned count = 0;
-    if((SwellProbs[i][j] >= 1 || SNLProbs[i][j] >= 1)){
+    if((SwellProbs[i][j] >= 4000 || SNLProbs[i][j] >= 4000)){
       bool loopFlag = true;
       unsigned index = j;
-      while(loopFlag && index*2 < data[i].size()){
-	if(data[i][index*2] >= data[i][index]*HarmonicRatio_){
+      while(loopFlag && index + j < data[i].size()){
+	if(SwellProbs[i][index+j] >= SwellProbs[i][index]){
 	  count++;
-	  index = index*2;
+	  index = index+j;
 	}
 	else{
 	  loopFlag = false;
@@ -309,7 +309,7 @@ void FeedbackID::SustainCheck(int i)
 void FeedbackID::Average(int i)
 {
   for(unsigned j = 0; j < probs[i].size(); j++){
-    probs[i][j] = (SNLProbs[i][j]*((int)(SNLWeight_/100)) + SwellProbs[i][j]*((int)(SwellWeight_/100)) + HarmonicProbs[i][j]*((int)(HarmonicWeight_/100))+ SpecWidthProbs[i][j]*((int)(SpecWeight_/100)) + SustainProbs[i][j]*((int)(SustainWeight_/100))) /((int) ((SNLWeight_ + SwellWeight_ + HarmonicWeight_ + SpecWeight_ + SustainWeight_)/100));
+    probs[i][j] = (SNLProbs[i][j]*((SNLWeight_/100)) + SwellProbs[i][j]*((SwellWeight_/100)) + HarmonicProbs[i][j]*((HarmonicWeight_/100.0))+ SpecWidthProbs[i][j]*((SpecWeight_/100)) + SustainProbs[i][j]*((SustainWeight_/100))) / (((SNLWeight_ + SwellWeight_ + HarmonicWeight_ + SpecWeight_ + SustainWeight_)/100)*1.0);
   }
 
   if(i == 148){
