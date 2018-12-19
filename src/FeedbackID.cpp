@@ -8,23 +8,48 @@
 
 using namespace std;
 
+/**
+   The constuctor initalizes the varables and takes in a 2D vector of FFT data.
+**/
 FeedbackID::FeedbackID(vector<vector<int> > analysis)
 {
+  // FFT Data outputted by the FFTAnalyzer class
   data = analysis;
   iWidth = analysis.size();
   iHeight = analysis[1].size()/2;
+
+  // Probability is broken up between 0 and MaxProb, with MaxProb representing 1.
+
   MaxProb_ = 32767;
 
+  // A frequency with amplitude below the SNL Low threshold has probability of 0.
+  // A frequency with amplitude above the SNL High theshold has probability of 1.
+  // A frequency with amplitude between the thresholds has probability between 0 and 1 as a function of how close the amplitude is to the high threshold.
   SNLThresholdH_ = 800;
   SNLThresholdL_ = 200;
+
+  // A frequency with amplitude that is growing below the Swell Low threshold rate have a probability of 0.
+  // A frequency with amplitude that is growing above the Swell Low threshold rate have a probability of 1.
+  // A frequency with amplitude between the thresholds has probability between 0 and 1 as a function of how close the rate of change is to the high threshold.
   SwellThresholdH_ = 2000;
   SwellThresholdL_ = 400;
+
+  // The Spectrum threshold is used to check the frequncies around the growing frequncy to check if they are growing at the same rate. This should be set the SwellThresholdL_ for best results.
   SpecThreshold_ = SwellThresholdL_;
+
+  // The amount of neighboring frequncies to check.
   SpecMaxWidth_ = 10;
+
+  // The percentage of probabilty that is added each time a frequency continues to act like feedback. For example,when set to 25, it will take 4 samples for the probabilty to become 1.
   probPerSustain_ = 25;
+
+  // The ratio of fundamental frequency amplitude to harmonic frequency amplitude. Used to check if the offending frequency has harmonics.
   HarmonicRatio_ = 1;
+
+  // The amount of harmonics to check.
   HarmonicMax_ = 4;
 
+  // Weights of each of the checks, from 1 to 100, where 100 reprensents 100%.
   SNLWeight_ = 100;
   SwellWeight_ = 100;
   HarmonicWeight_ = 100;
@@ -32,22 +57,27 @@ FeedbackID::FeedbackID(vector<vector<int> > analysis)
   SustainWeight_ = 100;
 }
 
-FeedbackID::~FeedbackID()
-{
-    //dtor
-}
+FeedbackID::~FeedbackID() {}
 
+/**
+   The findMin functon returns the minimum value in each sample. Used for debugging.
+**/
 int findMin(vector<int> data)
 {
-	//neglect first number in vector as it's the DC component. Should always be 0
-	return *std::min_element(data.begin()+1,data.end());
+  return *std::min_element(data.begin(),data.end());
 }
 
+/**
+   The findMax functon returns the minimum value in each sample. Used for debugging.
+**/
 int findMax(vector<int> data)
 {
-	return *std::max_element(data.begin(),data.end());
+  return *std::max_element(data.begin(),data.end());
 }
 
+/**
+   A List of possable errors to be handled in coordination with the GUI.
+ **/
 void FeedbackID::checkValues(){
 
   if(SNLThresholdH_ <= 0 || SNLThresholdH_ > MaxProb_)
@@ -89,20 +119,30 @@ void FeedbackID::checkValues(){
 
 }
 
+/**
+   The findFeedback function will return a matrix of probability in fixed point notation, so 0 is to 0.0 as 32767 is to 1.0. Each fixed point corresponds to about 0.0000305 of probability. 
+
+   This function ONLY use information causally. Future inputs can not impact the feedback probability of the present.
+
+   As such, the function will iterate through each sample of data, referencing previous samples and probabilities if needed.
+
+   The probabiltes for each of the five checks are saved in their own 2D vector. The final vector is calculated by the weighted average of all 5 checks.
+
+   Finally, the function returns the final probability vector.
+ **/
 vector<vector<int> > FeedbackID::findFeedback()
 {
-//This function will return a matrix of probability in fixed point notation, so 0 is to 0.0 as 32767 is to 1.0. Each fixed point corresponds to about 0.0000305 of probability.
-//
-//This function must ONLY use information causally. Future inputs can not impact the feedback probability of the present. 
-//As such, the function will iterate through each sample of data, referencing previous samples and probabilities if needed.
-
+  // Ensure that the input makes sence and is in range, and that the data is not empty.
   checkValues();
   if(!data.empty()){
+
+    // Initalize the corresponding 2D vector column and fill it with 0s. 
     vector<int> temp (data[0].size());
     int initProb = 0;
     fill(temp.begin(),temp.end(),initProb);
 
-    for (int i = 0; i < data.size(); i++) { // cycle through data matrix over time
+    // For every sample i, add an initalized vector to each probabilty vector and preform all 5 checks on the data sample. Then avaerge the probabilties up. 
+    for (int i = 0; i < data.size(); i++) {
       probs.push_back(temp);
       SNLProbs.push_back(temp);
       SwellProbs.push_back(temp);
@@ -122,11 +162,9 @@ vector<vector<int> > FeedbackID::findFeedback()
   return probs;
 }
 
-// How should the probabilty change as the mag approchaces the transform? 
+
 void FeedbackID::SNRCheck(int i)
 {
-  //cout << "Living it up inside the SNR check function " << i << endl;
-  //cout << "Max of " << i <<  " = " << findMax(data[i]) << endl;
   int spacing = (SNLThresholdH_ - SNLThresholdL_) / MaxProb_;
   for (unsigned j = 0; j < data[i].size(); j++){
     if(data[i][j] >= SNLThresholdL_){
