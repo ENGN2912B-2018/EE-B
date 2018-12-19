@@ -110,31 +110,27 @@ try {
     unsigned int iH = IDtest.iHeight;
     const unsigned long len = iW*iH;
     std::cout << "len = " << len << std::endl;
-    unsigned char mag = 0;
-    unsigned char fbmag = 0;
-    unsigned char ucRPicBuf[60928];
-    unsigned char ucGBPicBuf[60928];
-    memset (ucGBPicBuf,'0',60928);
-    // encode matrix data into rgb char arrays
+    int mag = 0;
+    int fbmag = 0;
+    // encode matrix data into file
+    std::remove("rgbData");
+    std::ofstream filename;
+    filename.open("rgbData");
     for(unsigned long iIndex = 0; iIndex < len; iIndex++)
     {
-        //std::cout << "Trying  mag[" << iIndex%iW << "][" <<iIndex/iW+1 << "]" << std::endl;
-        mag = analysis[iIndex%iW][iIndex/iW+1]/129;
-        //std::cout << "Trying fbmag[" << (iIndex/guiAnalysisPeriod)%iW << "][" << iIndex/iW+1 << "]" << std::endl;
-        fbmag = FBProbs[iIndex%iW][iIndex/iW+1]/129;
-        ucRPicBuf[iIndex] = 0;
-        //if (fbmag < mag) {
-            ucGBPicBuf[iIndex] = 0;
-        //} else {
-        //    ucGBPicBuf[iIndex] = 0;
-        //}
-        //std::cout << iIndex << "/" << len << std::endl;
+        int x = iIndex%iW;
+        int y = iIndex/iW+1;
+        mag = analysis[x][y]/129;
+        fbmag = FBProbs[x][y]/129;
+        filename << x << " " << y << " " << fbmag << " " << mag << " " << mag << std::endl;
+
         QCoreApplication::processEvents();
     }
+    filename.close();
     Gnuplot g9;
     g9.set_xrange(0,iW).set_yrange(0,iH).set_cbrange(0,255);
     //g9.cmd("set palette color");
-    g9.plot_rgbimage(ucRPicBuf,ucGBPicBuf,iW,iH,"Spectrum");
+    g9.plot_rgbimage("rgbData",iW,iH,"Spectrum");
 }
 catch (GnuplotException ge) {
     std::cout << ge.what() << endl;

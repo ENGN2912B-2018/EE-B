@@ -551,8 +551,7 @@ class Gnuplot
                         const std::string &title = "");
 
     /// plot rgbimage
-    Gnuplot& plot_rgbimage(const unsigned char *ucRPicBuf,
-                           const unsigned char *ucGBPicBuf,
+    Gnuplot& plot_rgbimage(const std::string filename,
                            const unsigned int iWidth,
                            const unsigned int iHeight,
                            const std::string &title = "");
@@ -1643,44 +1642,13 @@ Gnuplot& Gnuplot::plot_image(const unsigned char * ucPicBuf,
 //------------------------------------------------------------------------------
 //
 /// *  Mustered up by Alex Cannan, 12/18/18
+/// *  filename is file that contains rgb data formatted as x y r g b
 //
-Gnuplot& Gnuplot::plot_rgbimage(const unsigned char * ucRPicBuf,
-                                const unsigned char * ucGBPicBuf,
+Gnuplot& Gnuplot::plot_rgbimage(const std::string filename,
                                 const unsigned int iWidth,
                                 const unsigned int iHeight,
                                 const std::string &title)
 {
-    std::ofstream tmp;
-    std::ofstream output;
-    output.open("rgb.csv");
-    std::string name = create_tmpfile(tmp);
-    if (name == "")
-        return *this;
-
-    //
-    // write the data to file
-    //
-    int iIndex = 0;
-    for(int iRow = 0; iRow < iHeight; iRow++)
-    {
-        for(int iColumn = 0; iColumn < iWidth; iColumn++)
-        {
-            tmp << iColumn << " " << iRow  << " "
-                << static_cast<float>(ucRPicBuf[iIndex++]) << " "
-                << static_cast<float>(ucGBPicBuf[iIndex++]) << " "
-                << static_cast<float>(ucGBPicBuf[iIndex++]) << std::endl;
-            output << iColumn << ", " << iRow  << ", "
-                << static_cast<float>(ucRPicBuf[iIndex++]) << ", "
-                << static_cast<float>(ucGBPicBuf[iIndex++]) << ", "
-                << static_cast<float>(ucGBPicBuf[iIndex++]) << std::endl;
-        }
-    }
-
-    output.close();
-    tmp.flush();
-    tmp.close();
-
-
     std::ostringstream cmdstr;
     //
     // command to be sent to gnuplot
@@ -1691,9 +1659,9 @@ Gnuplot& Gnuplot::plot_rgbimage(const unsigned char * ucRPicBuf,
         cmdstr << "plot ";
 
     if (title == "")
-        cmdstr << "\"" << name << "\" with image";
+        cmdstr << "\"" << filename << "\" with image";
     else
-        cmdstr << "\"" << name << "\" title \"" << title << "\" with rgbimage";
+        cmdstr << "\"" << filename << "\" title \"" << title << "\" with rgbimage";
 
     //
     // Do the actual plot

@@ -1,6 +1,7 @@
 #ifndef FFTANALYZER_H
 #define FFTANALYZER_H
 #define PI 3.14159265358979
+#define FIXED_POINT 16
 #include <iostream>
 #include <vector>
 #include <iomanip>
@@ -29,7 +30,7 @@ std::vector<std::vector<int> > fileAnalyze(std::vector<int> data){
 	kiss_fft_scalar inputfft[vecSize];
 	kiss_fft_cpx outputfft[vecSize];
 	kiss_fftr_cfg cfg;
-	cfg = kiss_fftr_alloc(vecSize,0,0,0);
+    cfg = kiss_fftr_alloc(vecSize,0,0,0);
 	//cout << "Vars defined/allocated" << endl;
 //analyze chunks periodically
 	if (buffLeftover > 0) {buffCount = buffCount + 1; isLeftovers = true;} // if leftovers exist, increase buffer count by 1
@@ -54,10 +55,10 @@ std::vector<std::vector<int> > fileAnalyze(std::vector<int> data){
 			}
 			//cout << "about to call fftr... " << endl;
 //TODO: Apply window to input fft here!
-            for (int i = 0; i < vecSize; i++) {
-                double multiplier = 0.5 * (1 - cos(2*PI*i/(vecSize-1)));
-                inputfft[i] = multiplier * inputfft[i];
-            }
+//            for (int i = 0; i < vecSize; i++) {
+//                double multiplier = 0.5 * (1 - cos(2*PI*i/(vecSize-1)));
+//                inputfft[i] = multiplier * inputfft[i];
+//            }
 			kiss_fftr(cfg, inputfft, outputfft);
 			//cout << "initializing output vector to be pushed into matrix" << endl;
 			vector<int> temp;
@@ -65,18 +66,19 @@ std::vector<std::vector<int> > fileAnalyze(std::vector<int> data){
 			for (int k = 0; k < vecSize; k++) {
 				//cout << "find magnitude of " << outputfft[k+1].r << " + i" << outputfft[k+1].i << endl;
                 double absmag = sqrt(pow(outputfft[k+1].r,2) + pow(outputfft[k+1].i,2));
-                double dbmag = 10*log(absmag/32787);
-                if(dbmag < -60) {dbmag = -60;}
+                double dbmag = 10*log(absmag/131148); // relative is max fft output value for int input
+                double noisefloor = 60;
+                if(dbmag < -noisefloor) {dbmag = -noisefloor;}
                 if(dbmag > 0) {dbmag = 0;}
-                dbmag = (dbmag+60.5)*500;
+                dbmag = (dbmag+noisefloor*1.00001)*(32000/noisefloor); // translate [-nf,0] to [0,nf] and then [0,32787]
                 temp.push_back((int)(dbmag));
 			}
             //Smooth out the frequencies by averaging
-            for (int i = 0; i < temp.size(); i++) {
-                if (i > 2 && i < vecSize-3) {
-                    temp[i] = (temp[i-2]+temp[i-1]+temp[i]+temp[i+1]+temp[i+2])/5;
-                }
-            }
+//            for (int i = 0; i < temp.size(); i++) {
+//                if (i > 2 && i < vecSize-3) {
+//                    temp[i] = (temp[i-2]+temp[i-1]+temp[i]+temp[i+1]+temp[i+2])/5;
+//                }
+//            }
 			//cout << "Filled vector with magnitude of fftr. Pushing to output matrix... " << endl;
 			matrixoutput.push_back(temp);
 			//cout << "pushed back! i = " << i << endl;
