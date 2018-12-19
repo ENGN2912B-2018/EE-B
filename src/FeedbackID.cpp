@@ -12,7 +12,7 @@ FeedbackID::FeedbackID(vector<vector<int> > analysis)
 {
   data = analysis;
   iWidth = analysis.size();
-  iHeight = 1024;
+  iHeight = analysis[1].size()/2;
   MaxProb_ = 32767;
 
   SNLThresholdH_ = 800;

@@ -64,8 +64,19 @@ std::vector<std::vector<int> > fileAnalyze(std::vector<int> data){
 			//cout << "MADE IT HERE!!" << endl;
 			for (int k = 0; k < vecSize; k++) {
 				//cout << "find magnitude of " << outputfft[k+1].r << " + i" << outputfft[k+1].i << endl;
-				temp.push_back(sqrt(pow(outputfft[k+1].r,2) + pow(outputfft[k+1].i,2)));
+                double absmag = sqrt(pow(outputfft[k+1].r,2) + pow(outputfft[k+1].i,2));
+                double dbmag = 10*log(absmag/32787);
+                if(dbmag < -60) {dbmag = -60;}
+                if(dbmag > 0) {dbmag = 0;}
+                dbmag = (dbmag+60.5)*500;
+                temp.push_back((int)(dbmag));
 			}
+            //Smooth out the frequencies by averaging
+            for (int i = 0; i < temp.size(); i++) {
+                if (i > 2 && i < vecSize-3) {
+                    temp[i] = (temp[i-2]+temp[i-1]+temp[i]+temp[i+1]+temp[i+2])/5;
+                }
+            }
 			//cout << "Filled vector with magnitude of fftr. Pushing to output matrix... " << endl;
 			matrixoutput.push_back(temp);
 			//cout << "pushed back! i = " << i << endl;

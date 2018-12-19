@@ -107,26 +107,28 @@ for (int i = 0; i < analysis.size(); i++) {
 
 try {
     unsigned int iW = IDtest.iWidth;
-    unsigned int iH = 160;
-    unsigned long len = iW*iH;
+    unsigned int iH = IDtest.iHeight;
+    const unsigned long len = iW*iH;
+    std::cout << "len = " << len << std::endl;
     unsigned char mag = 0;
     unsigned char fbmag = 0;
-    unsigned char ucRPicBuf[len];
-    unsigned char ucGBPicBuf[len];
+    unsigned char ucRPicBuf[60928];
+    unsigned char ucGBPicBuf[60928];
+    memset (ucGBPicBuf,'0',60928);
     // encode matrix data into rgb char arrays
     for(unsigned long iIndex = 0; iIndex < len; iIndex++)
     {
-        std::cout << "Trying  mag[" << iIndex%iW << "][" <<iIndex/iW+1 << "]" << std::endl;
+        //std::cout << "Trying  mag[" << iIndex%iW << "][" <<iIndex/iW+1 << "]" << std::endl;
         mag = analysis[iIndex%iW][iIndex/iW+1]/129;
-        std::cout << "Trying fbmag[" << (iIndex/guiAnalysisPeriod)%iW << "][" << iIndex/iW+1 << "]" << std::endl;
+        //std::cout << "Trying fbmag[" << (iIndex/guiAnalysisPeriod)%iW << "][" << iIndex/iW+1 << "]" << std::endl;
         fbmag = FBProbs[iIndex%iW][iIndex/iW+1]/129;
-        ucRPicBuf[iIndex] = mag;
-        if (fbmag < mag) {
-            ucGBPicBuf[iIndex] = mag - fbmag;
-        } else {
+        ucRPicBuf[iIndex] = 0;
+        //if (fbmag < mag) {
             ucGBPicBuf[iIndex] = 0;
-        }
-        std::cout << iIndex << "/" << len << std::endl;
+        //} else {
+        //    ucGBPicBuf[iIndex] = 0;
+        //}
+        //std::cout << iIndex << "/" << len << std::endl;
         QCoreApplication::processEvents();
     }
     Gnuplot g9;
