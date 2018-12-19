@@ -163,7 +163,7 @@ The output of this project is meant to be an extractable feedback detection algo
 
 ## Build Instructions
 
-After cloning the repository, you can build with CMake. From the root directory (EE-B), input:
+After cloning the repository, you can build with QMake. Make sure you have boost, gnuplot, and qt active (See .modules file). From the root directory (EE-B), input:
 
 ```
 qmake WorkingFeedbackGUI.pro
