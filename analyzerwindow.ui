@@ -14,7 +14,7 @@
    <string>AnalyzerWindow</string>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <widget class="QWidget" name="">
+   <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
       <x>10</x>
@@ -149,7 +149,7 @@
      </item>
     </layout>
    </widget>
-   <widget class="QWidget" name="">
+   <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
       <x>11</x>
@@ -181,7 +181,7 @@
          <rect>
           <x>11</x>
           <y>24</y>
-          <width>66</width>
+          <width>231</width>
           <height>17</height>
          </rect>
         </property>
@@ -200,7 +200,7 @@
          <rect>
           <x>11</x>
           <y>47</y>
-          <width>122</width>
+          <width>241</width>
           <height>17</height>
          </rect>
         </property>
@@ -266,7 +266,7 @@
      </item>
     </layout>
    </widget>
-   <widget class="QWidget" name="">
+   <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
       <x>10</x>
