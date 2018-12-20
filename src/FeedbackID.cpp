@@ -25,7 +25,7 @@ FeedbackID::FeedbackID(vector<vector<int> > analysis)
   // A frequency with amplitude below the SNL Low threshold has probability of 0.
   // A frequency with amplitude above the SNL High theshold has probability of 1.
   // A frequency with amplitude between the thresholds has probability between 0 and 1 as a function of how close the amplitude is to the high threshold.
-  SNLThresholdH_ = 10000;
+  SNLThresholdH_ = 15000;
   SNLThresholdL_ = 50;
 
   // A frequency with amplitude that is growing below the Swell Low threshold rate have a probability of 0.
@@ -309,7 +309,7 @@ void FeedbackID::SustainCheck(int i)
 void FeedbackID::Average(int i)
 {
   for(unsigned j = 0; j < probs[i].size(); j++){
-    probs[i][j] = (SNLProbs[i][j]*((SNLWeight_/100)) + SwellProbs[i][j]*((SwellWeight_/100)) + HarmonicProbs[i][j]*((HarmonicWeight_/100.0))+ SpecWidthProbs[i][j]*((SpecWeight_/100)) + SustainProbs[i][j]*((SustainWeight_/100))) / (((SNLWeight_ + SwellWeight_ + HarmonicWeight_ + SpecWeight_ + SustainWeight_)/100)*1.0);
+    probs[i][j] = (SNLProbs[i][j]*((SNLWeight_/100)) + SwellProbs[i][j]*((SwellWeight_/100)) + HarmonicProbs[i][j]*((HarmonicWeight_/100.0))+ SpecWidthProbs[i][j]*((SpecWeight_/100)) + SustainProbs[i][j]*((SustainWeight_/100))) / (5.0);
   }
 
   if(i == 148){
