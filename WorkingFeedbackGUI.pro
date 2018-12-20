@@ -24,7 +24,9 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 win32 {
     INCLUDEPATH += C:/boost_1_69_0/PREFIX/include/boost-1_69
+    INCLUDEPATH += C:/gnuplot/fftw3
     LIBS += "-LC:\boost_1_69_0\PREFIX\lib" \
+    LIBS += "-LC:/gnuplot/fftw3" -lfftw3
 }
 
 CONFIG += c++11
@@ -49,8 +51,12 @@ HEADERS += \
     src/FeedbackID.h \
     src/FFTAnalyzer.h \
     src/FileReader.h \
-    lib/gnuplot-iostream.h \
-    lib/gnuplot_i.hpp
+    lib/gnuplot_i.hpp \
+    lib/Array.h \
+    lib/fftw++.h \
+    lib/align.h \
+    lib/seconds.h \
+    lib/statistics.h
 
 FORMS += \
         analyzerwindow.ui

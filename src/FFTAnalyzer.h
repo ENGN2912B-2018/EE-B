@@ -9,8 +9,13 @@
 #include <kiss_fft130/kiss_fft.h>
 #include <kiss_fft130/_kiss_fft_guts.h>
 #include <kiss_fft130/tools/kiss_fftr.h>
+#include <lib/Array.h>
+#include <lib/fftw++.h>
+
 
 using namespace std;
+using namespace Array;
+using namespace fftwpp;
 
 class FFTAnalyzer
 {
@@ -45,6 +50,20 @@ std::vector<std::vector<int> > fileAnalyze(std::vector<int> data) {
 	kiss_fft_cpx outputfft[vecSize];
 	kiss_fftr_cfg cfg;
     cfg = kiss_fftr_alloc(vecSize,0,NULL,NULL);
+
+//initialize replacement fft vars from fftw++
+
+    fftw::maxthreads=get_max_threads();
+
+    unsigned int n = vecSize;
+    unsigned int np = vecSize/2+1;
+    size_t align=sizeof(Complex);
+
+    array1<Complex> fftwOUT(np,align);
+    array1<double> fftwIN(n,align);
+
+    rcfft1d Forward(n,fftwIN,fftwOUT);
+
 ////analyze chunks periodically
     if (buffLeftover > 0) {buffCount = buffCount + 1; isLeftovers = true;} // if leftovers exist, increase buffer count by 1
     for (int i = 0; i < buffCount; i++) {
@@ -56,11 +75,13 @@ std::vector<std::vector<int> > fileAnalyze(std::vector<int> data) {
                 for (int k = 0; k < vecSize; k++) { // fill with zeros
                     inputfft[k+1] = 0;
                     debuginput[k+1] = 0;
+                    fftwIN[k+1] = 0;
                 }
                 //push leftovers into vector from the front
                 for (int k = 0; k < buffLeftover; k++) { // fill beginning with leftovers
                     inputfft[k+1] = data[(i*vecSize)+1];
                     debuginput[k+1] = data[(i*vecSize)+1];
+                    fftwIN[k+1] = data[(i*vecSize)+1];
                 }
 
             } else {
@@ -70,6 +91,7 @@ std::vector<std::vector<int> > fileAnalyze(std::vector<int> data) {
                     //cout << "Filling " << k+1 << "/" << vecSize << " with data[" << l << "] = " << data[l] << endl;
                     inputfft[k] = data[l];
                     debuginput[k] = data[l];
+                    fftwIN[k] = data[l];
                 }
 
             }
