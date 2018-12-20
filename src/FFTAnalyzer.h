@@ -3,6 +3,7 @@
 #define PI 3.14159265358979
 #define FIXED_POINT 16
 #include <iostream>
+#include <fstream>
 #include <vector>
 #include <iomanip>
 #include <math.h>
@@ -45,9 +46,14 @@ std::vector<std::vector<int> > fileAnalyze(std::vector<int> data) {
 	kiss_fft_cpx outputfft[vecSize];
 	kiss_fftr_cfg cfg;
     cfg = kiss_fftr_alloc(vecSize,0,NULL,NULL);
+
+
+
 ////analyze chunks periodically
     if (buffLeftover > 0) {buffCount = buffCount + 1; isLeftovers = true;} // if leftovers exist, increase buffer count by 1
     for (int i = 0; i < buffCount; i++) {
+
+
 
         if (i%analysisPeriod == 0) {
 
@@ -81,24 +87,57 @@ std::vector<std::vector<int> > fileAnalyze(std::vector<int> data) {
 //    }
 			//cout << "about to call fftr... " << endl;
 //TODO: Apply window to input fft here!
-            for (int i = 0; i < vecSize; i++) {
-                double multiplier = 0.5 * (1 - cos(2*PI*i/(vecSize-1)));
-                inputfft[i] = multiplier * inputfft[i];
+//            for (int i = 0; i < vecSize; i++) {
+//                double multiplier = 0.5 * (1 - cos(2*PI*i/(vecSize-1)));
+//                inputfft[i] = multiplier * inputfft[i];
+//            }
+            //open ofstream to push signal data into fftin
+            ofstream fftwI;
+            fftwI.open("fftin");
+            for (int k = 0; k < vecSize-1; k++) {
+                fftwI << inputfft[k] << endl;
             }
+            fftwI << inputfft[vecSize];
+            fftwI.close();
+
             signaldata.push_back(debuginput);
+
+//TODO: How to call fftwIO?
 
 			kiss_fftr(cfg, inputfft, outputfft);
 			vector<int> temp;
-			for (int k = 0; k < vecSize; k++) {
-				//cout << "find magnitude of " << outputfft[k+1].r << " + i" << outputfft[k+1].i << endl;
-                double absmag = sqrt(pow(outputfft[k+1].r,2) + pow(outputfft[k+1].i,2));
-                double dbmag = 10*log(absmag/131148); // relative is max fft output value for int input
-                double noisefloor = 60;
-                if(dbmag < -noisefloor) {dbmag = -noisefloor;}
-                if(dbmag > 0) {dbmag = 0;}
-                dbmag = (dbmag+noisefloor*1.00001)*(32000/noisefloor); // translate [-nf,0] to [0,nf] and then [0,32787]
-                temp.push_back((int)(dbmag));
-			}
+
+//pull fftout back in to temp vector. Keep an eye on max value
+
+            string line;
+            double normalizer = 13;
+            double mag, max;
+            max = 0;
+            ifstream fft("fftout");
+            if (fft.is_open())
+            {
+                while(getline(fft,line))
+                {
+                    mag = atof(line.c_str());
+                    if (mag > max) {max = mag;}
+                    temp.push_back((int)(mag/normalizer));
+                }
+            }
+            //fill rest of vector with zeros
+            for (int k = (vecSize/2+1); k < vecSize; k++) {
+                temp.push_back(0);
+            }
+
+//			for (int k = 0; k < vecSize; k++) {
+//				//cout << "find magnitude of " << outputfft[k+1].r << " + i" << outputfft[k+1].i << endl;
+//                double absmag = sqrt(pow(outputfft[k+1].r,2) + pow(outputfft[k+1].i,2));
+//                double dbmag = 10*log(absmag/131148); // relative is max fft output value for int input
+//                double noisefloor = 60;
+//                if(dbmag < -noisefloor) {dbmag = -noisefloor;}
+//                if(dbmag > 0) {dbmag = 0;}
+//                dbmag = (dbmag+noisefloor*1.00001)*(32000/noisefloor); // translate [-nf,0] to [0,nf] and then [0,32787]
+//                temp.push_back((int)(dbmag));
+//			}
 
 			matrixoutput.push_back(temp);
         }

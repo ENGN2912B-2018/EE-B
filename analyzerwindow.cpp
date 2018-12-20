@@ -21,10 +21,8 @@
 AnalyzerWindow::AnalyzerWindow(QWidget *parent) : QMainWindow(parent),
     ui(new Ui::AnalyzerWindow) {
     ui->setupUi(this);
-/*
-    chart = new QChart();
-    cv = new QChartView(chart);
-*/
+    std::string path = QCoreApplication::applicationDirPath().toLocal8Bit().constData();;
+    std::cout << path << endl;
 }
 
 AnalyzerWindow::~AnalyzerWindow(){
