@@ -14,8 +14,6 @@
 
 
 using namespace std;
-using namespace Array;
-using namespace fftwpp;
 
 class FFTAnalyzer
 {
@@ -53,16 +51,16 @@ std::vector<std::vector<int> > fileAnalyze(std::vector<int> data) {
 
 //initialize replacement fft vars from fftw++
 
-    fftw::maxthreads=get_max_threads();
+    //fftwpp::fftw::maxthreads=get_max_threads();
 
     unsigned int n = vecSize;
     unsigned int np = vecSize/2+1;
     size_t align=sizeof(Complex);
 
-    array1<Complex> fftwOUT(np,align);
-    array1<double> fftwIN(n,align);
+    Array::array1<Complex> fftwOUT(np,align);
+    Array::array1<double> fftwIN(n,align);
 
-    rcfft1d Forward(n,fftwIN,fftwOUT);
+    fftwpp::rcfft1d Forward(n,fftwIN,fftwOUT);
 
 ////analyze chunks periodically
     if (buffLeftover > 0) {buffCount = buffCount + 1; isLeftovers = true;} // if leftovers exist, increase buffer count by 1

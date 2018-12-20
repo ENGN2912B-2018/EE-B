@@ -2,7 +2,7 @@
    Copyright (C) 2004-16
    John C. Bowman, University of Alberta
    Malcolm Roberts, University of Strasbourg
-                         
+
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU Lesser General Public License as published by
    the Free Software Foundation; either version 3 of the License, or
@@ -39,22 +39,22 @@
 #include <omp.h>
 #endif
 
-inline int get_thread_num() 
+inline int get_thread_num()
 {
 #ifdef FFTWPP_SINGLE_THREAD
   return 0;
 #else
   return omp_get_thread_num();
-#endif  
+#endif
 }
 
-inline int get_max_threads() 
+inline int get_max_threads()
 {
 #ifdef FFTWPP_SINGLE_THREAD
   return 1;
 #else
   return omp_get_max_threads();
-#endif  
+#endif
 }
 
 #ifndef FFTWPP_SINGLE_THREAD
@@ -112,12 +112,12 @@ class ThreadBase
 protected:
   unsigned int threads;
   unsigned int innerthreads;
-public:  
-  ThreadBase();
+public:
+  ThreadBase(){}
   ThreadBase(unsigned int threads) : threads(threads) {}
   void Threads(unsigned int nthreads) {threads=nthreads;}
   unsigned int Threads() {return threads;}
-  
+
   void multithread(unsigned int nx) {
     if(nx >= threads) {
       innerthreads=1;
@@ -132,17 +132,17 @@ inline unsigned int realsize(unsigned int n, Complex *in, Complex *out=NULL)
 {
   return (!out || in == out) ? 2*(n/2+1) : n;
 }
-  
+
 inline unsigned int realsize(unsigned int n, Complex *in, double *out)
 {
  return realsize(n,in,(Complex *) out);
 }
-  
+
 inline unsigned int realsize(unsigned int n, double *in, Complex *out)
 {
  return realsize(n,(Complex *) in,out);
 }
-  
+
 // Base clase for fft routines
 //
 class fftw : public ThreadBase {
@@ -154,24 +154,24 @@ protected:
 
   fftw_plan plan;
   bool inplace;
-  
+
   unsigned int Dist(unsigned int n, size_t stride, size_t dist) {
     return dist ? dist : ((stride == 1) ? n : 1);
   }
-  
+
   static const double twopi;
-  
+
 public:
-  static unsigned int effort;
+  unsigned int effort;
   static unsigned int maxthreads;
   static double testseconds;
   static const char *WisdomName;
   static fftw_plan (*planner)(fftw *f, Complex *in, Complex *out);
-  
+
   virtual unsigned int Threads() {return threads;}
-  
+
   static const char *oddshift;
-  
+
   // Inplace shift of Fourier origin to (nx/2,0) for even nx.
   static void Shift(Complex *data, unsigned int nx, unsigned int ny,
                     unsigned int threads) {
@@ -255,41 +255,41 @@ public:
       exit(1);
     }
   }
-  
+
   fftw() : plan(NULL) {}
   fftw(unsigned int doubles, int sign, unsigned int threads,
        unsigned int n=0) :
-    doubles(doubles), sign(sign), threads(threads), 
+    doubles(doubles), sign(sign), threads(threads),
     norm(1.0/(n ? n : doubles/2)), plan(NULL) {
 #ifndef FFTWPP_SINGLE_THREAD
     fftw_init_threads();
-#endif      
+#endif
   }
-  
+
   virtual ~fftw() {
     if(plan) fftw_destroy_plan(plan);
   }
-  
+
   virtual fftw_plan Plan(Complex *in, Complex *out) {return NULL;};
-  
+
   inline void CheckAlign(Complex *p, const char *s) {
     if((size_t) p % sizeof(Complex) == 0) return;
-    std::cerr << "WARNING: " << s << " array is not " << sizeof(Complex) 
+    std::cerr << "WARNING: " << s << " array is not " << sizeof(Complex)
               << "-byte aligned: address " << p << std::endl;
   }
-  
+
   void noplan() {
     std::cerr << "Unable to construct FFTW plan" << std::endl;
     exit(1);
   }
-  
+
   static void planThreads(unsigned int threads) {
 #ifndef FFTWPP_SINGLE_THREAD
     omp_set_num_threads(threads);
     fftw_plan_with_nthreads(threads);
-#endif    
+#endif
   }
-  
+
   threaddata time(fftw_plan plan1, fftw_plan planT, Complex *in, Complex *out,
                   unsigned int Threads) {
     utils::statistics S,ST;
@@ -334,30 +334,30 @@ public:
     }
     return threaddata(threads,S.mean(),S.stdev());
   }
-  
+
   virtual threaddata lookup(bool inplace, unsigned int threads) {
     return threaddata();
   }
   virtual void store(bool inplace, const threaddata& data) {}
-  
+
   inline Complex *CheckAlign(Complex *in, Complex *out, bool constructor=true)
   {
-#ifndef NO_CHECK_ALIGN    
+#ifndef NO_CHECK_ALIGN
     CheckAlign(in,constructor ? "constructor input" : "input");
     if(out) CheckAlign(out,constructor ? "constructor output" : "output");
     else out=in;
 #else
     if(!out) out=in;
-#endif    
+#endif
     return out;
   }
-  
+
   threaddata Setup(Complex *in, Complex *out=NULL) {
     bool alloc=!in;
     if(alloc) in=utils::ComplexAlign((doubles+1)/2);
     out=CheckAlign(in,out);
     inplace=(out==in);
-    
+
     threaddata data;
     unsigned int Threads=threads;
     if(threads > 1) data=lookup(inplace,threads);
@@ -365,13 +365,13 @@ public:
     planThreads(threads);
     plan=(*planner)(this,in,out);
     if(!plan) noplan();
-    
+
     fftw_plan planT;
     if(fftw::maxthreads > 1) {
       threads=Threads;
       planThreads(threads);
       planT=(*planner)(this,in,out);
-    
+
       if(data.threads == 0) {
         if(planT)
           data=time(plan,planT,in,out,threads);
@@ -379,11 +379,11 @@ public:
         store(inplace,threaddata(threads,data.mean,data.stdev));
       }
     }
-    
+
     if(alloc) Array::deleteAlign(in,(doubles+1)/2);
     return data;
   }
-  
+
   threaddata Setup(Complex *in, double *out) {
     return Setup(in,(Complex *) out);
   }
@@ -391,11 +391,11 @@ public:
   threaddata Setup(double *in, Complex *out=NULL) {
     return Setup((Complex *) in,out);
   }
-  
+
   virtual void Execute(Complex *in, Complex *out, bool=false) {
     fftw_execute_dft(plan,(fftw_complex *) in,(fftw_complex *) out);
   }
-    
+
   Complex *Setout(Complex *in, Complex *out) {
     out=CheckAlign(in,out,false);
     if(inplace ^ (out == in)) {
@@ -404,33 +404,33 @@ public:
     }
     return out;
   }
-  
+
   void fft(Complex *in, Complex *out=NULL) {
     out=Setout(in,out);
     Execute(in,out);
   }
-    
+
   void fft(double *in, Complex *out=NULL) {
     fft((Complex *) in,out);
   }
-  
+
   void fft(Complex *in, double *out) {
     fft(in,(Complex *) out);
   }
-  
+
   void fft0(Complex *in, Complex *out=NULL) {
     out=Setout(in,out);
     Execute(in,out,true);
   }
-    
+
   void fft0(double *in, Complex *out=NULL) {
     fft0((Complex *) in,out);
   }
-  
+
   void fft0(Complex *in, double *out) {
     fft0(in,(Complex *) out);
   }
-  
+
   void Normalize(Complex *out) {
     unsigned int stop=doubles/2;
 #ifndef FFTWPP_SINGLE_THREAD
@@ -445,29 +445,29 @@ public:
 #endif
     for(unsigned int i=0; i < doubles; i++) out[i] *= norm;
   }
-  
-  virtual void fftNormalized(Complex *in, Complex *out=NULL, bool shift=false) 
+
+  virtual void fftNormalized(Complex *in, Complex *out=NULL, bool shift=false)
   {
     out=Setout(in,out);
     Execute(in,out,shift);
     Normalize(out);
   }
-  
+
   void fftNormalized(Complex *in, double *out, bool shift=false) {
     out=(double *) Setout(in,(Complex *) out);
     Execute(in,(Complex *) out,shift);
     Normalize(out);
   }
-  
+
   void fftNormalized(double *in, Complex *out, bool shift=false) {
     fftNormalized((Complex *) in,out,shift);
   }
-  
+
   template<class I, class O>
   void fft0Normalized(I in, O out) {
     fftNormalized(in,out,true);
   }
-  
+
   template<class O>
   void Normalize(unsigned int nx, unsigned int M, size_t ostride,
                  size_t odist, O *out) {
@@ -483,7 +483,7 @@ public:
       }
     }
   }
-  
+
   template<class I, class O>
   void fftNormalized(unsigned int nx, unsigned int M, size_t ostride,
                      size_t odist, I *in, O *out=NULL, bool shift=false) {
@@ -511,7 +511,7 @@ public:
     rows(rows), cols(cols), threads(threads) {
     size=sizeof(T);
     if(size % sizeof(double) != 0) {
-      std::cerr << "ERROR: Transpose is not implemented for type of size " 
+      std::cerr << "ERROR: Transpose is not implemented for type of size "
                 << size;
       exit(1);
     }
@@ -526,7 +526,7 @@ public:
       fftw::planThreads(threads);
       threads=1;
     } else fftw::planThreads(1);
-    
+
     fftw_iodim dims[3];
 
     a=std::min(rows,threads);
@@ -534,18 +534,18 @@ public:
 
     unsigned int n=utils::ceilquotient(rows,a);
     unsigned int m=utils::ceilquotient(cols,b);
-    
+
     // If rows <= threads then a=rows and n=1.
     // If rows >= threads then b=1 and m=cols.
-    
+
     nlength=n*length;
     mlength=m*length;
-    
-    dims[0].n=n; 
+
+    dims[0].n=n;
     dims[0].is=cols*length;
     dims[0].os=length;
-    
-    dims[1].n=m; 
+
+    dims[1].n=m;
     dims[1].is=length;
     dims[1].os=rows*length;
 
@@ -558,7 +558,7 @@ public:
                             NULL,fftw::effort);
     ilast=a;
     jlast=b;
-    
+
     if(n*a > rows) { // Only happens when rows > threads.
       a=utils::ceilquotient(rows,n);
       ilast=a-1;
@@ -580,7 +580,7 @@ public:
     if(plan) fftw_destroy_plan(plan);
     if(plan2) fftw_destroy_plan(plan2);
   }
-  
+
   template<class T>
   void transpose(T *in, T *out=NULL) {
     if(rows == 0 || cols == 0) return;
@@ -636,7 +636,7 @@ public:
     typename Table::iterator p=table.find(key);
     return p == table.end() ? threaddata() : p->second;
   }
-  
+
   void Store(Table& threadtable, T key, const threaddata& data) {
     threadtable[key]=data;
   }
@@ -646,10 +646,10 @@ struct keytype1 {
   unsigned int nx;
   unsigned int threads;
   bool inplace;
-  keytype1(unsigned int nx, unsigned int threads, bool inplace) : 
+  keytype1(unsigned int nx, unsigned int threads, bool inplace) :
     nx(nx), threads(threads), inplace(inplace) {}
 };
-  
+
 struct keyless1 {
   bool operator()(const keytype1& a, const keytype1& b) const {
     return a.nx < b.nx || (a.nx == b.nx &&
@@ -664,10 +664,10 @@ struct keytype2 {
   unsigned int threads;
   bool inplace;
   keytype2(unsigned int nx, unsigned int ny, unsigned int threads,
-           bool inplace) : 
+           bool inplace) :
     nx(nx), ny(ny), threads(threads), inplace(inplace) {}
 };
-  
+
 struct keyless2 {
   bool operator()(const keytype2& a, const keytype2& b) const {
     return a.nx < b.nx || (a.nx == b.nx &&
@@ -685,13 +685,13 @@ struct keytype3 {
   unsigned int threads;
   bool inplace;
   keytype3(unsigned int nx, unsigned int ny, unsigned int nz,
-           unsigned int threads, bool inplace) : 
+           unsigned int threads, bool inplace) :
     nx(nx), ny(ny), nz(nz), threads(threads), inplace(inplace) {}
 };
-  
+
 struct keyless3 {
   bool operator()(const keytype3& a, const keytype3& b) const {
-    return a.nx < b.nx || (a.nx == b.nx && 
+    return a.nx < b.nx || (a.nx == b.nx &&
                            (a.ny < b.ny || (a.ny == b.ny &&
                                             (a.nz < b.nz ||
                                              (a.nz == b.nz &&
@@ -705,7 +705,7 @@ struct keyless3 {
 // Before calling fft(), the arrays in and out (which may coincide) must be
 // allocated as Complex[n].
 //
-// Out-of-place usage: 
+// Out-of-place usage:
 //
 //   fft1d Forward(n,-1,in,out);
 //   Forward.fft(in,out);
@@ -727,31 +727,31 @@ struct keyless3 {
 class fft1d : public fftw, public Threadtable<keytype1,keyless1> {
   unsigned int nx;
   static Table threadtable;
-public:  
+public:
   fft1d(unsigned int nx, int sign, Complex *in=NULL, Complex *out=NULL,
         unsigned int threads=maxthreads)
-    : fftw(2*nx,sign,threads), nx(nx) {Setup(in,out);} 
-  
+    : fftw(2*nx,sign,threads), nx(nx) {Setup(in,out);}
+
 #ifdef __Array_h__
   fft1d(int sign, const Array::array1<Complex>& in,
         const Array::array1<Complex>& out=Array::NULL1,
-        unsigned int threads=maxthreads) 
-    : fftw(2*in.Nx(),sign,threads), nx(in.Nx()) {Setup(in,out);} 
-#endif  
-  
+        unsigned int threads=maxthreads)
+    : fftw(2*in.Nx(),sign,threads), nx(in.Nx()) {Setup(in,out);}
+#endif
+
   threaddata lookup(bool inplace, unsigned int threads) {
     return this->Lookup(threadtable,keytype1(nx,threads,inplace));
   }
   void store(bool inplace, const threaddata& data) {
     this->Store(threadtable,keytype1(nx,data.threads,inplace),data);
   }
-  
+
   fftw_plan Plan(Complex *in, Complex *out) {
     return fftw_plan_dft_1d(nx,(fftw_complex *) in,(fftw_complex *) out,
                             sign,effort);
   }
 };
-  
+
 template<class I, class O>
 class fftwblock : public virtual fftw {
 public:
@@ -770,19 +770,19 @@ public:
     T=1;
     Q=M;
     R=0;
-    
+
     threaddata S1=Setup(in,out);
     fftw_plan planT1=plan;
-    
+
     if(fftw::maxthreads > 1) {
       if(Threads > 1) {
         T=std::min(M,Threads);
         Q=T > 0 ? M/T : 0;
         R=M-Q*T;
-    
+
         threads=Threads;
         threaddata ST=Setup(in,out);
-        
+
         if(R > 0 && threads == 1 && plan1 != plan2) {
           fftw_destroy_plan(plan2);
           plan2=plan1;
@@ -806,23 +806,23 @@ public:
       } else
         Setup(in,out); // Synchronize wisdom
     }
-  }    
-  
+  }
+
   fftw_plan Plan(int Q, fftw_complex *in, fftw_complex *out) {
     return fftw_plan_many_dft(1,&nx,Q,in,NULL,istride,idist,
                               out,NULL,ostride,odist,sign,effort);
   }
-  
+
   fftw_plan Plan(int Q, double *in, fftw_complex *out) {
     return fftw_plan_many_dft_r2c(1,&nx,Q,in,NULL,istride,idist,
                                   out,NULL,ostride,odist,effort);
   }
-  
+
   fftw_plan Plan(int Q, fftw_complex *in, double *out) {
     return fftw_plan_many_dft_c2r(1,&nx,Q,in,NULL,istride,idist,
                                   out,NULL,ostride,odist,effort);
   }
-  
+
   fftw_plan Plan(Complex *in, Complex *out) {
     if(R > 0) {
       plan2=Plan(Q+1,(I *) in,(O *) out);
@@ -831,11 +831,11 @@ public:
     }
     return Plan(Q,(I *) in,(O *) out);
   }
-    
+
   void Execute(fftw_plan plan, fftw_complex *in, fftw_complex *out) {
     fftw_execute_dft(plan,in,out);
   }
-  
+
   void Execute(fftw_plan plan, double *in, fftw_complex *out) {
     fftw_execute_dft_r2c(plan,in,out);
   }
@@ -863,20 +863,20 @@ public:
       }
     }
   }
-  
+
   unsigned int Threads() {return std::max(T,threads);}
-  
+
   ~fftwblock() {
     if(plan2) fftw_destroy_plan(plan2);
   }
 };
-  
+
 // Compute the complex Fourier transform of M complex vectors, each of
 // length n.
 // Before calling fft(), the arrays in and out (which may coincide) must be
 // allocated as Complex[M*n].
 //
-// Out-of-place usage: 
+// Out-of-place usage:
 //
 //   mfft1d Forward(n,-1,M,stride,dist,in,out);
 //   Forward.fft(in,out);
@@ -894,14 +894,14 @@ public:
 class mfft1d : public fftwblock<fftw_complex,fftw_complex>,
                public Threadtable<keytype3,keyless3> {
   static Table threadtable;
-public:  
+public:
   mfft1d(unsigned int nx, int sign, unsigned int M=1, size_t stride=1,
          size_t dist=0, Complex *in=NULL, Complex *out=NULL,
          unsigned int threads=maxthreads) :
     fftw(2*((nx-1)*stride+(M-1)*Dist(nx,stride,dist)+1),sign,threads,nx),
     fftwblock<fftw_complex,fftw_complex>
-    (nx,M,stride,stride,dist,dist,in,out,threads) {} 
-  
+    (nx,M,stride,stride,dist,dist,in,out,threads) {}
+
   mfft1d(unsigned int nx, int sign, unsigned int M,
          size_t istride, size_t ostride, size_t idist, size_t odist,
          Complex *in=NULL, Complex *out=NULL, unsigned int threads=maxthreads):
@@ -909,8 +909,8 @@ public:
                   2*((nx-1)*ostride+(M-1)*Dist(nx,ostride,odist)+1)),sign,
          threads, nx),
     fftwblock<fftw_complex,fftw_complex>(nx,M,istride,ostride,idist,odist,in,
-                                         out,threads) {} 
-  
+                                         out,threads) {}
+
   threaddata lookup(bool inplace, unsigned int threads) {
     return Lookup(threadtable,keytype3(nx,Q,R,threads,inplace));
   }
@@ -918,13 +918,13 @@ public:
     Store(threadtable,keytype3(nx,Q,R,data.threads,inplace),data);
   }
 };
-  
+
 // Compute the complex Fourier transform of n real values, using phase sign -1.
 // Before calling fft(), the array in must be allocated as double[n] and
 // the array out must be allocated as Complex[n/2+1]. The arrays in and out
 // may coincide, allocated as Complex[n/2+1].
 //
-// Out-of-place usage: 
+// Out-of-place usage:
 //
 //   rcfft1d Forward(n,in,out);
 //   Forward.fft(in,out);
@@ -933,44 +933,44 @@ public:
 //
 //   rcfft1d Forward(n);
 //   Forward.fft(out);
-// 
+//
 // Notes:
 //   in contains the n real values stored as a Complex array;
 //   out contains the first n/2+1 Complex Fourier values.
 //
 class rcfft1d : public fftw, public Threadtable<keytype1,keyless1> {
   unsigned int nx;
-  static Table threadtable;
-public:  
-  rcfft1d(unsigned int nx, Complex *out=NULL, unsigned int threads=maxthreads) 
+  Table threadtable;
+public:
+  rcfft1d(unsigned int nx, Complex *out=NULL, unsigned int threads=maxthreads)
     : fftw(2*(nx/2+1),-1,threads,nx), nx(nx) {Setup(out,(double*) NULL);}
-  
+
   rcfft1d(unsigned int nx, double *in, Complex *out=NULL,
-          unsigned int threads=maxthreads)  
+          unsigned int threads=maxthreads)
     : fftw(2*(nx/2+1),-1,threads,nx), nx(nx) {Setup(in,out);}
-  
+
   threaddata lookup(bool inplace, unsigned int threads) {
     return Lookup(threadtable,keytype1(nx,threads,inplace));
   }
   void store(bool inplace, const threaddata& data) {
     Store(threadtable,keytype1(nx,data.threads,inplace),data);
   }
-  
+
   fftw_plan Plan(Complex *in, Complex *out) {
     return fftw_plan_dft_r2c_1d(nx,(double *) in,(fftw_complex *) out, effort);
   }
-  
+
   void Execute(Complex *in, Complex *out, bool=false) {
     fftw_execute_dft_r2c(plan,(double *) in,(fftw_complex *) out);
   }
 };
-  
+
 // Compute the real inverse Fourier transform of the n/2+1 Complex values
 // corresponding to the non-negative part of the frequency spectrum, using
 // phase sign +1.
 // Before calling fft(), the array in must be allocated as Complex[n/2+1]
 // and the array out must be allocated as double[n]. The arrays in and out
-// may coincide, allocated as Complex[n/2+1]. 
+// may coincide, allocated as Complex[n/2+1].
 //
 // Out-of-place usage (input destroyed):
 //
@@ -981,7 +981,7 @@ public:
 //
 //   crfft1d Backward(n);
 //   Backward.fft(in);
-// 
+//
 // Notes:
 //   in contains the first n/2+1 Complex Fourier values.
 //   out contains the n real values stored as a Complex array;
@@ -989,25 +989,25 @@ public:
 class crfft1d : public fftw, public Threadtable<keytype1,keyless1> {
   unsigned int nx;
   static Table threadtable;
-public:  
-  crfft1d(unsigned int nx, double *out=NULL, unsigned int threads=maxthreads) 
-    : fftw(2*(nx/2+1),1,threads,nx), nx(nx) {Setup(out);} 
-  
-  crfft1d(unsigned int nx, Complex *in, double *out=NULL, 
+public:
+  crfft1d(unsigned int nx, double *out=NULL, unsigned int threads=maxthreads)
+    : fftw(2*(nx/2+1),1,threads,nx), nx(nx) {Setup(out);}
+
+  crfft1d(unsigned int nx, Complex *in, double *out=NULL,
           unsigned int threads=maxthreads)
-    : fftw(realsize(nx,in,out),1,threads,nx), nx(nx) {Setup(in,out);} 
-  
+    : fftw(realsize(nx,in,out),1,threads,nx), nx(nx) {Setup(in,out);}
+
   threaddata lookup(bool inplace, unsigned int threads) {
     return Lookup(threadtable,keytype1(nx,threads,inplace));
   }
   void store(bool inplace, const threaddata& data) {
     Store(threadtable,keytype1(nx,data.threads,inplace),data);
   }
-  
+
   fftw_plan Plan(Complex *in, Complex *out) {
     return fftw_plan_dft_c2r_1d(nx,(fftw_complex *) in,(double *) out,effort);
   }
-  
+
   void Execute(Complex *in, Complex *out, bool=false) {
     fftw_execute_dft_c2r(plan,(fftw_complex *) in,(double *) out);
   }
@@ -1019,7 +1019,7 @@ public:
 // Complex[M*(n/2+1)]. The arrays in and out may coincide,
 // allocated as Complex[M*(n/2+1)].
 //
-// Out-of-place usage: 
+// Out-of-place usage:
 //
 //   mrcfft1d Forward(n,M,istride,ostride,idist,odist,in,out);
 //   Forward.fft(in,out);
@@ -1028,7 +1028,7 @@ public:
 //
 //   mrcfft1d Forward(n,M,istride,ostride,idist,odist);
 //   Forward.fft(out);
-// 
+//
 // Notes:
 //   istride is the spacing between the elements of each real vector;
 //   ostride is the spacing between the elements of each Complex vector;
@@ -1045,28 +1045,28 @@ public:
            size_t istride, size_t ostride,
            size_t idist, size_t odist,
            double *in=NULL, Complex *out=NULL,
-           unsigned int threads=maxthreads) 
+           unsigned int threads=maxthreads)
     : fftw(std::max((realsize(nx,in,out)-2)*istride+(M-1)*idist+2,
                     2*(nx/2*ostride+(M-1)*odist+1)),-1,threads,nx),
       fftwblock<double,fftw_complex>
     (nx,M,istride,ostride,idist,odist,(Complex *) in,out,threads) {}
-  
+
   threaddata lookup(bool inplace, unsigned int threads) {
     return Lookup(threadtable,keytype3(nx,Q,R,threads,inplace));
   }
-  
+
   void store(bool inplace, const threaddata& data) {
     Store(threadtable,keytype3(nx,Q,R,data.threads,inplace),data);
   }
-  
+
   void Normalize(Complex *out) {
     fftw::Normalize<Complex>(nx/2+1,M,ostride,odist,out);
   }
-  
+
   void fftNormalized(double *in, Complex *out=NULL) {
     fftw::fftNormalized<double,Complex>(nx/2+1,M,ostride,odist,in,out,false);
   }
-  
+
   void fft0Normalized(double *in, Complex *out=NULL) {
     fftw::fftNormalized<double,Complex>(nx/2+1,M,ostride,odist,in,out,true);
   }
@@ -1077,7 +1077,7 @@ public:
 // spectra, using phase sign +1. Before calling fft(), the array in must be
 // allocated as Complex[M*(n/2+1)] and the array out must be allocated as
 // double[M*n]. The arrays in and out may coincide,
-// allocated as Complex[M*(n/2+1)].  
+// allocated as Complex[M*(n/2+1)].
 //
 // Out-of-place usage (input destroyed):
 //
@@ -1088,7 +1088,7 @@ public:
 //
 //   mcrfft1d Backward(n,M,istride,ostride,idist,odist);
 //   Backward.fft(out);
-// 
+//
 // Notes:
 //   stride is the spacing between the elements of each Complex vector;
 //   dist is the spacing between the first elements of the vectors;
@@ -1101,38 +1101,38 @@ class mcrfft1d : public fftwblock<fftw_complex,double>,
 public:
   mcrfft1d(unsigned int nx, unsigned int M, size_t istride, size_t ostride,
            size_t idist, size_t odist, Complex *in=NULL, double *out=NULL,
-           unsigned int threads=maxthreads) 
+           unsigned int threads=maxthreads)
     : fftw(std::max(2*(nx/2*istride+(M-1)*idist+1),
                     (realsize(nx,in,out)-2)*ostride+(M-1)*odist+2),1,threads,nx),
       fftwblock<fftw_complex,double>
     (nx,M,istride,ostride,idist,odist,in,(Complex *) out,threads) {}
-  
+
   threaddata lookup(bool inplace, unsigned int threads) {
     return Lookup(threadtable,keytype3(nx,Q,R,threads,inplace));
   }
-  
+
   void store(bool inplace, const threaddata& data) {
     Store(threadtable,keytype3(nx,Q,R,data.threads,inplace),data);
   }
-  
+
   void Normalize(double *out) {
     fftw::Normalize<double>(nx,M,ostride,odist,out);
   }
-  
+
   void fftNormalized(Complex *in, double *out=NULL) {
     fftw::fftNormalized<Complex,double>(nx,M,ostride,odist,in,out,false);
   }
-  
+
   void fft0Normalized(Complex *in, double *out=NULL) {
     fftw::fftNormalized<Complex,double>(nx,M,ostride,odist,in,out,true);
   }
 };
-  
+
 // Compute the complex two-dimensional Fourier transform of nx times ny
 // complex values. Before calling fft(), the arrays in and out (which may
 // coincide) must be allocated as Complex[nx*ny].
 //
-// Out-of-place usage: 
+// Out-of-place usage:
 //
 //   fft2d Forward(nx,ny,-1,in,out);
 //   Forward.fft(in,out);
@@ -1158,32 +1158,32 @@ class fft2d : public fftw, public Threadtable<keytype2,keyless2> {
   unsigned int nx;
   unsigned int ny;
   static Table threadtable;
-public:  
+public:
   fft2d(unsigned int nx, unsigned int ny, int sign, Complex *in=NULL,
-        Complex *out=NULL, unsigned int threads=maxthreads) 
-    : fftw(2*nx*ny,sign,threads), nx(nx), ny(ny) {Setup(in,out);} 
-  
+        Complex *out=NULL, unsigned int threads=maxthreads)
+    : fftw(2*nx*ny,sign,threads), nx(nx), ny(ny) {Setup(in,out);}
+
 #ifdef __Array_h__
   fft2d(int sign, const Array::array2<Complex>& in,
-        const Array::array2<Complex>& out=Array::NULL2, 
-        unsigned int threads=maxthreads) 
+        const Array::array2<Complex>& out=Array::NULL2,
+        unsigned int threads=maxthreads)
     : fftw(2*in.Size(),sign,threads), nx(in.Nx()), ny(in.Ny()) {
     Setup(in,out);
   }
-#endif  
-  
+#endif
+
   threaddata lookup(bool inplace, unsigned int threads) {
     return this->Lookup(threadtable,keytype2(nx,ny,threads,inplace));
   }
   void store(bool inplace, const threaddata& data) {
     this->Store(threadtable,keytype2(nx,ny,data.threads,inplace),data);
   }
-  
+
   fftw_plan Plan(Complex *in, Complex *out) {
     return fftw_plan_dft_2d(nx,ny,(fftw_complex *) in,(fftw_complex *) out,
                             sign,effort);
   }
-  
+
   void Execute(Complex *in, Complex *out, bool=false) {
     fftw_execute_dft(plan,(fftw_complex *) in,(fftw_complex *) out);
   }
@@ -1193,9 +1193,9 @@ public:
 // values, using phase sign -1.
 // Before calling fft(), the array in must be allocated as double[nx*ny] and
 // the array out must be allocated as Complex[nx*(ny/2+1)]. The arrays in
-// and out may coincide, allocated as Complex[nx*(ny/2+1)]. 
+// and out may coincide, allocated as Complex[nx*(ny/2+1)].
 //
-// Out-of-place usage: 
+// Out-of-place usage:
 //
 //   rcfft2d Forward(nx,ny,in,out);
 //   Forward.fft(in,out);       // Origin of Fourier domain at (0,0)
@@ -1207,7 +1207,7 @@ public:
 //   rcfft2d Forward(nx,ny);
 //   Forward.fft(in);           // Origin of Fourier domain at (0,0)
 //   Forward.fft0(in);          // Origin of Fourier domain at (nx/2,0)
-// 
+//
 // Notes:
 //   in contains the nx*ny real values stored as a Complex array;
 //   out contains the upper-half portion (ky >= 0) of the Complex transform.
@@ -1215,22 +1215,22 @@ public:
 class rcfft2d : public fftw {
   unsigned int nx;
   unsigned int ny;
-public:  
+public:
   rcfft2d(unsigned int nx, unsigned int ny, Complex *out=NULL,
-          unsigned int threads=maxthreads) 
-    : fftw(2*nx*(ny/2+1),-1,threads,nx*ny), nx(nx), ny(ny) {Setup(out);} 
-  
+          unsigned int threads=maxthreads)
+    : fftw(2*nx*(ny/2+1),-1,threads,nx*ny), nx(nx), ny(ny) {Setup(out);}
+
   rcfft2d(unsigned int nx, unsigned int ny, double *in, Complex *out=NULL,
-          unsigned int threads=maxthreads) 
+          unsigned int threads=maxthreads)
     : fftw(2*nx*(ny/2+1),-1,threads,nx*ny), nx(nx), ny(ny) {
     Setup(in,out);
-  } 
-  
+  }
+
   fftw_plan Plan(Complex *in, Complex *out) {
     return fftw_plan_dft_r2c_2d(nx,ny,(double *) in,(fftw_complex *) out,
                                 effort);
   }
-  
+
   void Execute(Complex *in, Complex *out, bool shift=false) {
     if(shift) {
       if(inplace) Shift(in,nx,ny,threads);
@@ -1238,7 +1238,7 @@ public:
     }
     fftw_execute_dft_r2c(plan,(double *) in,(fftw_complex *) out);
   }
-  
+
   // Set Nyquist modes of even shifted transforms to zero.
   void deNyquist(Complex *f) {
     unsigned int nyp=ny/2+1;
@@ -1256,14 +1256,14 @@ public:
         f[(i+1)*nyp-1]=0.0;
   }
 };
-  
+
 // Compute the real two-dimensional inverse Fourier transform of the
 // nx*(ny/2+1) Complex values corresponding to the spectral values in the
 // half-plane ky >= 0, using phase sign +1.
 // Before calling fft(), the array in must be allocated as
 // Complex[nx*(ny/2+1)] and the array out must be allocated as
 // double[nx*ny]. The arrays in and out may coincide,
-// allocated as Complex[nx*(ny/2+1)]. 
+// allocated as Complex[nx*(ny/2+1)].
 //
 // Out-of-place usage (input destroyed):
 //
@@ -1276,7 +1276,7 @@ public:
 //   crfft2d Backward(nx,ny);
 //   Backward.fft(in);          // Origin of Fourier domain at (0,0)
 //   Backward.fft0(in);         // Origin of Fourier domain at (nx/2,0)
-// 
+//
 // Notes:
 //   in contains the upper-half portion (ky >= 0) of the Complex transform;
 //   out contains the nx*ny real values stored as a Complex array.
@@ -1284,22 +1284,22 @@ public:
 class crfft2d : public fftw {
   unsigned int nx;
   unsigned int ny;
-public:  
+public:
   crfft2d(unsigned int nx, unsigned int ny, double *out=NULL,
           unsigned int threads=maxthreads) :
-    fftw(2*nx*(ny/2+1),1,threads,nx*ny), nx(nx), ny(ny) {Setup(out);} 
-  
+    fftw(2*nx*(ny/2+1),1,threads,nx*ny), nx(nx), ny(ny) {Setup(out);}
+
   crfft2d(unsigned int nx, unsigned int ny, Complex *in, double *out=NULL,
           unsigned int threads=maxthreads)
     : fftw(nx*realsize(ny,in,out),1,threads,nx*ny), nx(nx), ny(ny) {
     Setup(in,out);
-  } 
-  
+  }
+
   fftw_plan Plan(Complex *in, Complex *out) {
     return fftw_plan_dft_c2r_2d(nx,ny,(fftw_complex *) in,(double *) out,
                                 effort);
   }
-  
+
   void Execute(Complex *in, Complex *out, bool shift=false) {
     fftw_execute_dft_c2r(plan,(fftw_complex *) in,(double *) out);
     if(shift) {
@@ -1307,7 +1307,7 @@ public:
       else Shift((double *) out,nx,ny,threads);
     }
   }
-  
+
   // Set Nyquist modes of even shifted transforms to zero.
   void deNyquist(Complex *f) {
     unsigned int nyp=ny/2+1;
@@ -1326,11 +1326,11 @@ public:
   }
 };
 
-// Compute the complex three-dimensional Fourier transform of 
+// Compute the complex three-dimensional Fourier transform of
 // nx times ny times nz complex values. Before calling fft(), the arrays in
 // and out (which may coincide) must be allocated as Complex[nx*ny*nz].
 //
-// Out-of-place usage: 
+// Out-of-place usage:
 //
 //   fft3d Forward(nx,ny,nz,-1,in,out);
 //   Forward.fft(in,out);
@@ -1357,20 +1357,20 @@ class fft3d : public fftw {
   unsigned int nx;
   unsigned int ny;
   unsigned int nz;
-public:  
+public:
   fft3d(unsigned int nx, unsigned int ny, unsigned int nz,
         int sign, Complex *in=NULL, Complex *out=NULL,
-        unsigned int threads=maxthreads) 
-    : fftw(2*nx*ny*nz,sign,threads), nx(nx), ny(ny), nz(nz) {Setup(in,out);} 
-  
+        unsigned int threads=maxthreads)
+    : fftw(2*nx*ny*nz,sign,threads), nx(nx), ny(ny), nz(nz) {Setup(in,out);}
+
 #ifdef __Array_h__
   fft3d(int sign, const Array::array3<Complex>& in,
         const Array::array3<Complex>& out=Array::NULL3,
-        unsigned int threads=maxthreads) 
-    : fftw(2*in.Size(),sign,threads), nx(in.Nx()), ny(in.Ny()), nz(in.Nz()) 
+        unsigned int threads=maxthreads)
+    : fftw(2*in.Size(),sign,threads), nx(in.Nx()), ny(in.Ny()), nz(in.Nz())
   {Setup(in,out);}
-#endif  
-  
+#endif
+
   fftw_plan Plan(Complex *in, Complex *out) {
     return fftw_plan_dft_3d(nx,ny,nz,(fftw_complex *) in,
                             (fftw_complex *) out, sign, effort);
@@ -1381,9 +1381,9 @@ public:
 // nx times ny times nz real values, using phase sign -1.
 // Before calling fft(), the array in must be allocated as double[nx*ny*nz]
 // and the array out must be allocated as Complex[nx*ny*(nz/2+1)]. The
-// arrays in and out may coincide, allocated as Complex[nx*ny*(nz/2+1)]. 
+// arrays in and out may coincide, allocated as Complex[nx*ny*(nz/2+1)].
 //
-// Out-of-place usage: 
+// Out-of-place usage:
 //
 //   rcfft3d Forward(nx,ny,nz,in,out);
 //   Forward.fft(in,out);       // Origin of Fourier domain at (0,0)
@@ -1394,7 +1394,7 @@ public:
 //   rcfft3d Forward(nx,ny,nz);
 //   Forward.fft(in);           // Origin of Fourier domain at (0,0)
 //   Forward.fft0(in);          // Origin of Fourier domain at (nx/2,ny/2,0)
-// 
+//
 // Notes:
 //   in contains the nx*ny*nz real values stored as a Complex array;
 //   out contains the upper-half portion (kz >= 0) of the Complex transform.
@@ -1403,23 +1403,23 @@ class rcfft3d : public fftw {
   unsigned int nx;
   unsigned int ny;
   unsigned int nz;
-public:  
+public:
   rcfft3d(unsigned int nx, unsigned int ny, unsigned int nz, Complex *out=NULL,
           unsigned int threads=maxthreads)
     : fftw(2*nx*ny*(nz/2+1),-1,threads,nx*ny*nz), nx(nx), ny(ny), nz(nz) {
     Setup(out);
-  } 
-  
+  }
+
   rcfft3d(unsigned int nx, unsigned int ny, unsigned int nz, double *in,
-          Complex *out=NULL, unsigned int threads=maxthreads) 
+          Complex *out=NULL, unsigned int threads=maxthreads)
     : fftw(2*nx*ny*(nz/2+1),-1,threads,nx*ny*nz),
-      nx(nx), ny(ny), nz(nz) {Setup(in,out);} 
-  
+      nx(nx), ny(ny), nz(nz) {Setup(in,out);}
+
   fftw_plan Plan(Complex *in, Complex *out) {
     return fftw_plan_dft_r2c_3d(nx,ny,nz,(double *) in,(fftw_complex *) out,
                                 effort);
   }
-  
+
   void Execute(Complex *in, Complex *out, bool shift=false) {
     if(shift) {
       if(inplace) Shift(in,nx,ny,nz,threads);
@@ -1427,7 +1427,7 @@ public:
     }
     fftw_execute_dft_r2c(plan,(double *) in,(fftw_complex *) out);
   }
-  
+
   // Set Nyquist modes of even shifted transforms to zero.
   void deNyquist(Complex *f) {
     unsigned int nzp=nz/2+1;
@@ -1439,7 +1439,7 @@ public:
       for(unsigned int k=0; k < yz; ++k)
         f[k]=0.0;
     }
-    
+
     if(ny % 2 == 0) {
 #ifndef FFTWPP_SINGLE_THREAD
 #pragma omp parallel for num_threads(threads)
@@ -1450,7 +1450,7 @@ public:
           f[iyz+k]=0.0;
       }
     }
-        
+
     if(nz % 2 == 0)
 #ifndef FFTWPP_SINGLE_THREAD
 #pragma omp parallel for num_threads(threads)
@@ -1460,14 +1460,14 @@ public:
           f[i*yz+(j+1)*nzp-1]=0.0;
   }
 };
-  
+
 // Compute the real two-dimensional inverse Fourier transform of the
 // nx*ny*(nz/2+1) Complex values corresponding to the spectral values in the
 // half-plane kz >= 0, using phase sign +1.
 // Before calling fft(), the array in must be allocated as
 // Complex[nx*ny*(nz+1)/2] and the array out must be allocated as
 // double[nx*ny*nz]. The arrays in and out may coincide,
-// allocated as Complex[nx*ny*(nz/2+1)]. 
+// allocated as Complex[nx*ny*(nz/2+1)].
 //
 // Out-of-place usage (input destroyed):
 //
@@ -1480,7 +1480,7 @@ public:
 //   crfft3d Backward(nx,ny,nz);
 //   Backward.fft(in);          // Origin of Fourier domain at (0,0)
 //   Backward.fft0(in);         // Origin of Fourier domain at (nx/2,ny/2,0)
-// 
+//
 // Notes:
 //   in contains the upper-half portion (kz >= 0) of the Complex transform;
 //   out contains the nx*ny*nz real values stored as a Complex array.
@@ -1489,22 +1489,22 @@ class crfft3d : public fftw {
   unsigned int nx;
   unsigned int ny;
   unsigned int nz;
-public:  
+public:
   crfft3d(unsigned int nx, unsigned int ny, unsigned int nz, double *out=NULL,
-          unsigned int threads=maxthreads) 
+          unsigned int threads=maxthreads)
     : fftw(2*nx*ny*(nz/2+1),1,threads,nx*ny*nz), nx(nx), ny(ny), nz(nz)
-  {Setup(out);} 
-  
+  {Setup(out);}
+
   crfft3d(unsigned int nx, unsigned int ny, unsigned int nz, Complex *in,
-          double *out=NULL, unsigned int threads=maxthreads) 
+          double *out=NULL, unsigned int threads=maxthreads)
     : fftw(nx*ny*(realsize(nz,in,out)),1,threads,nx*ny*nz), nx(nx), ny(ny),
-      nz(nz) {Setup(in,out);} 
-  
+      nz(nz) {Setup(in,out);}
+
   fftw_plan Plan(Complex *in, Complex *out) {
     return fftw_plan_dft_c2r_3d(nx,ny,nz,(fftw_complex *) in,(double *) out,
                                 effort);
   }
-  
+
   void Execute(Complex *in, Complex *out, bool shift=false) {
     fftw_execute_dft_c2r(plan,(fftw_complex *) in,(double *) out);
     if(shift) {
@@ -1512,7 +1512,7 @@ public:
       else Shift((double *) out,nx,ny,nz,threads);
     }
   }
-  
+
   // Set Nyquist modes of even shifted transforms to zero.
   void deNyquist(Complex *f) {
     unsigned int nzp=nz/2+1;
@@ -1524,7 +1524,7 @@ public:
       for(unsigned int k=0; k < yz; ++k)
         f[k]=0.0;
     }
-    
+
     if(ny % 2 == 0) {
 #ifndef FFTWPP_SINGLE_THREAD
 #pragma omp parallel for num_threads(threads)
@@ -1535,7 +1535,7 @@ public:
           f[iyz+k]=0.0;
       }
     }
-        
+
     if(nz % 2 == 0)
 #ifndef FFTWPP_SINGLE_THREAD
 #pragma omp parallel for num_threads(threads)

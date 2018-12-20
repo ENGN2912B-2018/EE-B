@@ -16,15 +16,15 @@
 #include <QFileDialog>
 #include <QMessageBox>
 #include "lib/gnuplot_i.hpp"
+#include <QDebug>
+#include "fftw/fftw3.h"
 
 
 AnalyzerWindow::AnalyzerWindow(QWidget *parent) : QMainWindow(parent),
     ui(new Ui::AnalyzerWindow) {
     ui->setupUi(this);
-/*
-    chart = new QChart();
-    cv = new QChartView(chart);
-*/
+//    fftw fftw;
+//    qDebug() << fftw.calc();
 }
 
 AnalyzerWindow::~AnalyzerWindow(){
