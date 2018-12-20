@@ -104,6 +104,8 @@ std::vector<std::vector<int> > fileAnalyze(std::vector<int> data) {
 
 //TODO: How to call fftwIO?
 
+			std::system("./lib/fftwIO fftin");
+
 			kiss_fftr(cfg, inputfft, outputfft);
 			vector<int> temp;
 
