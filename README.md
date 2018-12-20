@@ -88,12 +88,25 @@ from the confort of thier own home and without breaking the bank.
 
 - The ability to use the identifaction and elimination algorithims on live microphone input from the Pi. (Not Completed)
 
-
 # Software Architectual Design
+
+The software contains the following files:
+
+- FileReader.cpp and FileReader.h: Responsable for reading and parsing a .wav file. Input a file location and outputs an int vector containing the audio data.
+- FFTAnalyzer.h: Uses the kiss_fft130 FFT library to compute the FFT of the audio data. Takes as input an int vector and outputs a 2D vector containing the FFT for each sample.
+- FeedbackID.cpp and FeedbackID.h: Impliments the five feedback checks and assigns a feedback liklihood probabilty to each frequency for every sample. Takes as input the 2D FFT vector and outputs at 2D vector of probabilities.
+- gnuplot_i.hpp: C++ interface for gnuplot.
+- analyzerwindow.cpp and analyzerwindow.h: Contains the QT GUI implimentation.
+- main.cpp: Calls the QT interface
+- WorkingFeedbackGUI.pro: qmake file to compile the project
+- kiss_fft130: Included external library that computes the FFT.
 
 ## Required External Libraties:
 
- - Coming Soon
+ - Kiss_fft130 (included)
+ - Boost Version 1.63.0
+ - GNUPlot
+ - QT Version 5.7.0
 
 ## Functional Block Diagram:
 
@@ -154,23 +167,3 @@ from the confort of thier own home and without breaking the bank.
 # Author Contributions
 
   - Coming Soon
-
-## Design Philosophy
-
-The purpose of this project is to develop an algorithm that will be able to detect and report on budding feedback in a live input. This development will involve constructing a test environment within a Raspberry Pi 3, which can intake signals from files, and eventually, a live input. These incoming signals will be split into buffers, which will then be processed by an FFT function from an external library. Once processed, the spectral information of all the buffers will be inputs to the feedback identification algorithm. The algorithm will then generate possible feedback frequencies by utilizing several identification techniques, which will be assigned weights within the algorithm. These weights will eventually be adjusted for speed and accuracy of feedback detection. Once a sufficient algorithm is produced, the engineer can then apply band-stop filters to the identified frequencies, and route these back to the input of the program. This test will exemplify a real-life feedback situation, one that changes dynamically as filtering is applied.
-
-The output of this project is meant to be an extractable feedback detection algorithm for use in embedded applications. Since embedded devices usually have hardware-accelerated processes for common DSP processes (FFT, Filtering, Sampling), our project will focus on yielding portable code for feedback detection, while leaving the rest of the development up to the embedded engineers.
-
-## Build Instructions
-
-After cloning the repository, you can build with QMake. Make sure you have boost, gnuplot, and qt active (See .modules file). From the root directory (EE-B), input:
-
-```
-qmake WorkingFeedbackGUI.pro
-
-make
-```
-
-And to run:
-
-`./WorkingFeedbackGui`
