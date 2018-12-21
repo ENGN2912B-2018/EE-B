@@ -170,7 +170,15 @@ The other area where errors can occur is when calculating the probability of fee
 
 ## Instructions for compiling and running the software
 
-  - Coming Soon
+To compile and run:
+
+`
+qmake WorkingFeedbackGUI.pro
+
+make
+
+./WorkingFeedbackGUI
+`
 
 # Conclusions
 
