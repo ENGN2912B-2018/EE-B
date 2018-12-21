@@ -110,11 +110,11 @@ The software contains the following files:
 
 ## Functional Block Diagram:
 
-![Alt text](images/Functional.png?raw=true "Functional Block Diagram")
+![alt text](EE-B/images/Functional.PNG?raw=true "Functional Block Diagram")
 
 ## UML Diagram:
 
-![Alt text](images/UML.png?raw=true "UML Diagram")
+![alt text](EE-B/images/UML.png?raw=true "UML Diagram")
   
 # Interface Descriptions
 
