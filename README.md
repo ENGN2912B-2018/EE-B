@@ -130,16 +130,15 @@ The software contains the following files:
 
   There are two areas of concern where errors can occur that prevent the algorithm from continuing as normal. The first of which dealing with the input .wav file. If an error occurs while reading and processing the file, the file reader retunes the data vector containing a single integer representing the error code to the analyzerwindow which outputs the corresponding error message in a new window. In all cases, the program will not crash and the user will be able to try new inputs. The possible errors regarding the file reader are as follows:
 
-	Error code 1: The file does not exist or cannot be found.
+ - Error code 1: The file does not exist or cannot be found.
 
-	Error code 2: The file is too small to be a .wav file. 
-Occurs if the file size is less than 44 bytes.
+ - Error code 2: The file is too small to be a .wav file. Occurs if the file size is less than 44 bytes.
  
-	Error code 3, 4 and 7: The file header does not contain the bytes "RIFF", "fmt", or "data". All wav files should contain these three bytes. In the .wav format, the bytes following these indicators contain valuable information regarding sample rate, sample size, compression, format, and more. We have also found out that sometimes processing wav files in other audio software can sometimes add to move around the header values. Because this is difficult to predict, we do not support files with "RIFF", "fmt", or "data" not in the correct position, which is why we check all three and not just one.
+ - Error code 3, 4 and 7: The file header does not contain the bytes "RIFF", "fmt", or "data". All wav files should contain these three bytes. In the .wav format, the bytes following these indicators contain valuable information regarding sample rate, sample size, compression, format, and more. We have also found out that sometimes processing wav files in other audio software can sometimes add to move around the header values. Because this is difficult to predict, we do not support files with "RIFF", "fmt", or "data" not in the correct position, which is why we check all three and not just one.
 
-	Error code 5: The header contains a byte that represents file compression. If the byte reads one, then the file is uncompressed, if the byte is not 1, the file cannot be processed.
+ - Error code 5: The header contains a byte that represents file compression. If the byte reads one, then the file is uncompressed, if the byte is not 1, the file cannot be processed.
 
-	Error code 6: The header contains a byte that represents the sample format. If the byte reads one, then the file is a mono .wav file, meaning the audio is in the form of a single stream. Some dual channel .wav files can have two channels with alternating samples, which we do not support. If the byte is not read 1, the file cannot be processed.
+ - Error code 6: The header contains a byte that represents the sample format. If the byte reads one, then the file is a mono .wav file, meaning the audio is in the form of a single stream. Some dual channel .wav files can have two channels with alternating samples, which we do not support. If the byte is not read 1, the file cannot be processed.
 
 In all of these situations, the program alerts the user and asks for another file.
 
