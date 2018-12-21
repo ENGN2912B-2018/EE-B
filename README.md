@@ -176,22 +176,41 @@ The other area where errors can occur is when calculating the probability of fee
 
 ## Major Accomplishments
 
-  - Coming Soon
+-	.WAV File reading
+-	Fixed-point and floating-point FFT implementations
+-	QT-based GUI with interactivity
+-	Adjustable feedback identification model
 
 ## Results of the software development effort
 
-  - Coming Soon
+  - Established a basis for future acoustic feedback research
 
 ## Level of Success
 
-  - Coming Soon
+Due to external complications, we were not able to complete as much as we had initially planned. However, the end product is a perfect sandbox for the identification algorithm to be tuned further, which lays the groundwork for future development. Considering other forms of success, this was a great opportunity for us to develop our skills as programmers in an industry-like environment. 
 
 # Future Work
 
 ## Potential future software expansions and software features
 
-  - Coming Soon
+-	Visualization
+o	Logarithmic spectral dimension
+o	Automatic axis labels
+o	Color Customization
+-	ID Algorithm
+o	More variable customizations
+o	Machine learning implementation for optimization
+-	GUI
+o	More options to control FeedbackID unit
+o	Integrated visualization component
+-	Input/Output
+o	Support for live signal input and output
+o	Ability to output signal to file with feedback filtered
+-	Noise Art
+o	The noiseart branch of the repository could be developed more—it’s based on a broken FFT and produces noisy, colorful patterns. 
 
 # Author Contributions
 
-  - Coming Soon
+  - Domenic Ferri: Feedback identification, .WAV file parsing
+- Alex Cannan: FFT Integration, GUI using Qt, Visualization using gnuplot
+
