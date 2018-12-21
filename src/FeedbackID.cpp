@@ -198,7 +198,7 @@ void FeedbackID::SwellCheck(int i)
 void FeedbackID::HarmonicCheck(int i)
 {
   int harmonicStep = MaxProb_ / HarmonicMax_;
-  for (unsigned j = 0; j < data[i].size(); j++){
+  for (unsigned j = 1; j < data[i].size(); j++){
     unsigned count = 0;
     if((SwellProbs[i][j] >= 4000 || SNLProbs[i][j] >= 4000)){
       bool loopFlag = true;
