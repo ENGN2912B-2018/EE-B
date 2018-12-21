@@ -110,7 +110,7 @@ The software contains the following files:
 
 ## Functional Block Diagram:
 
-![alt text](EE-B/images/Functional.PNG?raw=true "Functional Block Diagram")
+![functional](https://user-images.githubusercontent.com/43046820/50324604-da4f6380-04ad-11e9-9df9-6440393386ee.PNG)
 
 ## UML Diagram:
 
