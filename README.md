@@ -166,11 +166,39 @@ The other area where errors can occur is when calculating the probability of fee
 
 ## Description of functional testing to date
 
-  - Coming Soon
+### GUI:
+The GUI is fully tested and working correctly including:
+- Browsing for file.
+- Inputting filename and filepath
+- Weight Sliders
+- Choosable sample size
+- All buttons
+- Error messages
+
+### File Reader:
+The File Reader is fully tested on good and bad files and works correctly:
+- Header data is read correctly
+- Reads audio format and compression
+- Correctly parses and outputs all audio samples
+- Rejects non-compatable files
+- Checks if file or path exist
+
+### FFT:
+On the CCV, the FFTW library is used which outputs the correct values for the FFT of audio samples. It used the inputted GUI variables correctly. On the Raspberry Pi however, we could not get the FFTW library to compile correctly, therefore we used the kiss_fft library, which is outputting the wrong results for a reason we are unsure of. Therefore it is only fully working on the CCV and Windows.
+
+### Feedback Identificaton:
+All 5 checks have been tested seperatly by compairing the the checks' output probabilities to the FFT samples. All 5 checks work properly. The weighted average has been tested and is working correctly. The class correctly identifies when algorithm attributes are out of range.
+
+### Gnuplotting:
+It was tested that the gunplot matches the data it is given and displays correctly.
 
 ## Instructions for compiling and running the software
 
-To compile and run:
+### CCV:
+
+Download the .modules file
+
+Download the respostory and navigate to the EE-B folder:
 
 ```
 qmake WorkingFeedbackGUI.pro
@@ -181,6 +209,51 @@ make
 ```
 
 Make sure you have Qt, Gnuplot, and Boost libraries installed.
+
+### Raspberry Pi
+
+Unlike the CCV, the Raspberry Pi does not come with all of libraies installed, so the user must first install them.
+The operating system that this software was tested on is the Raspbian operating system.
+
+Install the Boost Library version 1.63.0 	boost_1_63_0.tar.bz2 from the following link:
+
+https://www.boost.org/users/history/version_1_63_0.html
+
+Run the bootstrapper:
+
+```
+  ./bootstrap.sh 
+```
+
+Then install:
+
+```
+./b2 install
+```
+Install Gnuplot:
+
+```
+sudo apt-get install gnuplot
+```
+Install Qt and qmake:
+
+```
+sudo apt-get install build-essential
+
+sudo apt-get install qtcreator
+
+sudo apt-get install qt5-default
+```
+
+Now download the reposatory and navigate to the EE-B folder:
+
+```
+qmake WorkingFeedbackGUI.pro
+
+make
+
+./WorkingFeedbackGUI
+```
 
 # Conclusions
 
