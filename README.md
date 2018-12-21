@@ -114,7 +114,7 @@ The software contains the following files:
 
 ## UML Diagram:
 
-![alt text](EE-B/images/UML.png?raw=true "UML Diagram")
+![uml](https://user-images.githubusercontent.com/43046820/50324573-aecc7900-04ad-11e9-99a5-5a35193e6f62.PNG)
   
 # Interface Descriptions
 
