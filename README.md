@@ -110,11 +110,11 @@ The software contains the following files:
 
 ## Functional Block Diagram:
 
-  - Coming Soon
+![Alt text](images/Functional.png?raw=true "Functional Block Diagram")
 
 ## UML Diagram:
 
-  - Coming Soon
+![Alt text](images/UML.png?raw=true "UML Diagram")
   
 # Interface Descriptions
 
@@ -152,10 +152,10 @@ The other area where errors can occur is when calculating the probability of fee
 
   - Raspberry Pi Version 3 Model B+
   - Raspbian Operating System
-  - Compliler Version: 
-  - QT Version: 5.7.0
+  - Compliler Version (gcc and g++): 6.3.0
+  - QT Version: 5.7.1
   - Boost Version: 1.63.0
-  - Gnuplot Version: 
+  - Gnuplot Version: 5.0
 
 ### CCV:
 
