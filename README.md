@@ -172,13 +172,13 @@ The other area where errors can occur is when calculating the probability of fee
 
 To compile and run:
 
-`
+```
 qmake WorkingFeedbackGUI.pro
 
 make
 
 ./WorkingFeedbackGUI
-`
+```
 
 # Conclusions
 
