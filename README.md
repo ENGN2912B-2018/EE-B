@@ -120,21 +120,50 @@ The software contains the following files:
 
 ## Graphical Interface
 
-  - Coming Soon
+  - The graphical interface has been created using QT Version 5.7.0. It consist of a simple GUI that allows the user to browse for a .wav file, select the weights for each of the checks, choose the analysis period, and show a progress bar. It also consists of two buttons, one that calls the feedback identification algorithm with the chosen user inputs, and one that closes the program. If the file path inputted does not exist, or it is not of proper .wav format, then an error message is shown, and the user will be able to select another file. The code structure of the GUI makes it easy to add future features as they are implemented.  
 
 ## Data Visualization
 
-  - Coming Soon
+  - Using the Gnuplot library and a Gnuplot C++ interface, we are able to plot the results of the feedback identification. The plotted results are in the form of a spectrogram that plots the FFT spectrum as sample number (x-axis), verses frequency (y-axis), verses frequency magnitude (z-axis in color). Over the spectrogram, red highlights are placed over the spectrogram plot that shows how high the probabilities of feedback for each frequency component are. The reader the component is, the higher the probability that the frequency is undergoing feedback. This allows the user to see both the spectrogram of the audio data and feedback probabilities in one plot.
 
 ## Exception Handling
 
-  - Coming Soon
+  There are two areas of concern where errors can occur that prevent the algorithm from continuing as normal. The first of which dealing with the input .wav file. If an error occurs while reading and processing the file, the file reader retunes the data vector containing a single integer representing the error code to the analyzerwindow which outputs the corresponding error message in a new window. In all cases, the program will not crash and the user will be able to try new inputs. The possible errors regarding the file reader are as follows:
+
+	Error code 1: The file does not exist or cannot be found.
+
+	Error code 2: The file is too small to be a .wav file. 
+Occurs if the file size is less than 44 bytes.
+ 
+	Error code 3, 4 and 7: The file header does not contain the bytes "RIFF", "fmt", or "data". All wav files should contain these three bytes. In the .wav format, the bytes following these indicators contain valuable information regarding sample rate, sample size, compression, format, and more. We have also found out that sometimes processing wav files in other audio software can sometimes add to move around the header values. Because this is difficult to predict, we do not support files with "RIFF", "fmt", or "data" not in the correct position, which is why we check all three and not just one.
+
+	Error code 5: The header contains a byte that represents file compression. If the byte reads one, then the file is uncompressed, if the byte is not 1, the file cannot be processed.
+
+	Error code 6: The header contains a byte that represents the sample format. If the byte reads one, then the file is a mono .wav file, meaning the audio is in the form of a single stream. Some dual channel .wav files can have two channels with alternating samples, which we do not support. If the byte is not read 1, the file cannot be processed.
+
+In all of these situations, the program alerts the user and asks for another file.
+
+The other area where errors can occur is when calculating the probability of feedback for each frequency component using the five checks. Errors can occur when the threshold values and other check attributes are out of range or do not make sense. Originally, we wanted these values to be adjustable from the GUI, however we found a set of constant values that work well for all files. However, incase these values are adjusted within the code, a set of checks were implemented to ensure that the values make sense and will not cause nonsensical results. When these range errors occur, the algorithm proceeds and finishes are normal but a warning is displayed telling the user which value is out of range and that the results may not make sense. 
 
 # Testing and Evaluation
 
 ## Operating system(s) and software compiler/library version(s) tested
 
-  - Coming Soon
+### Raspberry Pi:
+
+  - Raspberry Pi Version 3 Model B+
+  - Raspbian Operating System
+  - Compliler Version: 
+  - QT Version: 5.7.0
+  - Boost Version: 1.63.0
+  - Gnuplot Version: 
+
+### CCV:
+
+  - Compiler Version (gcc and g++): 7.2
+  - QT Version: 5.7.0
+  - Boost Version: 1.63.0
+  - Gnuplot Version: 4.6
 
 ## Description of functional testing to date
 
