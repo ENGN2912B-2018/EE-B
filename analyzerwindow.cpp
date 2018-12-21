@@ -72,7 +72,12 @@ ui->progressBar->setValue(20);
 //Take FFT Periodically
 
     unsigned guiAnalysisPeriod = ui->analysisPeriodSpinner->value();
-    FFTAnalyzer FFTtest(1024, guiAnalysisPeriod, reader.getsamplerate());
+    unsigned fftSize = 1024;
+    if (ui->radio512->isChecked()) {fftSize = 512;}
+    if (ui->radio1024->isChecked()) {fftSize = 1024;}
+    if (ui->radio2048->isChecked()) {fftSize = 2048;}
+    if (ui->radio4096->isChecked()) {fftSize = 4096;}
+    FFTAnalyzer FFTtest(fftSize, guiAnalysisPeriod, reader.getsamplerate());
     vector<vector<int> > analysis = FFTtest.fileAnalyze(data);
 
 ui->progressBar->setValue(40);
