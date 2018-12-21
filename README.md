@@ -183,7 +183,7 @@ The other area where errors can occur is when calculating the probability of fee
 
 ## Results of the software development effort
 
-  - Established a basis for future acoustic feedback research
+ Established a basis for future acoustic feedback research
 
 ## Level of Success
 
@@ -193,20 +193,20 @@ Due to external complications, we were not able to complete as much as we had in
 
 ## Potential future software expansions and software features
 
--	Visualization
+-	**Visualization**
 o	Logarithmic spectral dimension
 o	Automatic axis labels
 o	Color Customization
--	ID Algorithm
+-	**ID Algorithm**
 o	More variable customizations
 o	Machine learning implementation for optimization
--	GUI
+-	**GUI**
 o	More options to control FeedbackID unit
 o	Integrated visualization component
--	Input/Output
+-	**Input/Output**
 o	Support for live signal input and output
 o	Ability to output signal to file with feedback filtered
--	Noise Art
+-	**Noise Art**
 o	The noiseart branch of the repository could be developed more—it’s based on a broken FFT and produces noisy, colorful patterns. 
 
 # Author Contributions
