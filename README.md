@@ -180,6 +180,8 @@ make
 ./WorkingFeedbackGUI
 ```
 
+Make sure you have Qt, Gnuplot, and Boost libraries installed.
+
 # Conclusions
 
 ## Major Accomplishments
